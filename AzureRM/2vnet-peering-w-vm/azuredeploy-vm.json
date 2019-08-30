@@ -1,0 +1,238 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Username for the Virtual Machine."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+        },
+        "sharedKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The shared key used to establish connection between the two vNet Gateways."
+            }
+        },
+        "gatewaySku": {
+            "type": "string",
+            "defaultValue": "VpnGw1",
+            "allowedValues": [
+                "Standard",
+                "HighPerformance",
+                "VpnGw1",
+                "VpnGw2",
+                "VpnGw3"
+            ],
+            "metadata": {
+                "description": "The SKU for the VPN Gateway. Cannot be Basic SKU."
+            }
+        },
+        "adminPublicKey": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
+            }
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "testVM"
+        },
+        "ubuntuOSVersion": {
+            "type": "string",
+            "defaultValue": "16.04.0-LTS",
+            "allowedValues": [
+                "12.04.5-LTS",
+                "14.04.5-LTS",
+                "16.04.0-LTS",
+                "18.04-LTS"
+            ],
+            "metadata": {
+                "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+            }
+        },
+        "autoShutdownStatus": {
+            "type": "string"
+        },
+        "autoShutdownTime": {
+            "type": "string"
+        },
+        "autoShutdownTimeZone": {
+            "type": "string"
+        },
+        "autoShutdownNotificationStatus": {
+            "type": "string"
+        },
+        "autoShutdownNotificationLocale": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "imagePublisher": "Canonical",
+        "imageOffer": "UbuntuServer",
+        "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'salinuxvm')]",
+        "nicName": "myVMNic",
+        "publicIPAddressName": "myPublicIP",
+        "publicIPAddressType": "Dynamic",
+        "vNet1": {
+            "name": "[concat('vNet1-', resourceGroup().location)]",
+            "addressSpacePrefix": "65.6.0.0/16",
+            "subnetName": "subnet1",
+            "subnetPrefix": "65.6.27.0/24",
+            "gatewayName": "vNet1-Gateway",
+            "gatewaySubnetPrefix": "65.6.200.224/27",
+            "gatewayPublicIPName": "[concat('gw1pip', uniqueString(resourceGroup().id))]",
+            "connectionName": "vNet1-to-vNet2",
+            "asn": 65010
+        },
+        "vNet2": {
+            "name": "[concat('vNet2-', resourceGroup().location)]",
+            "addressSpacePrefix": "132.38.0.0/16",
+            "subnetName": "subnet1",
+            "subnetPrefix": "132.38.1.0/24",
+            "gatewayName": "vNet2-Gateway",
+            "gatewaySubnetPrefix": "132.38.30.224/27",
+            "gatewayPublicIPName": "[concat('gw2pip', uniqueString(resourceGroup().id))]",
+            "connectionName": "vNet2-to-vNet1",
+            "asn": 65050
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('storageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('publicIPAddressName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('nicName'), copyIndex())]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
+            ],
+            "copy": {
+                "name": "nic-copy",
+                "count": 2
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat('vNet', copyIndex('nic-copy', 1), '-', resourceGroup().location), 'subnet1')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2018-10-01",
+            "name": "[concat(parameters('vmName'), copyIndex())]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces/', concat(variables('nicName'), copyIndex()))]"
+            ],
+            "copy": {
+                "name": "vmcopy",
+                "count": 2
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2ms"
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('vmName'), copyIndex())]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('imagePublisher')]",
+                        "offer": "[variables('imageOffer')]",
+                        "sku": "[parameters('ubuntuOSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicName'), copyIndex()))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('shutdown-computevm-', parameters('vmName'), copyIndex())]",
+            "type": "Microsoft.DevTestLab/schedules",
+            "apiVersion": "2017-04-26-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), copyIndex())]"
+            ],
+            "copy": {
+                "name": "schedcopy",
+                "count": 2
+            },
+            "properties": {
+                "status": "[parameters('autoShutdownStatus')]",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                    "time": "[parameters('autoShutdownTime')]"
+                },
+                "timeZoneId": "[parameters('autoShutdownTimeZone')]",
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('vmName'), copyIndex()))]",
+                "notificationSettings": {
+                    "status": "[parameters('autoShutdownNotificationStatus')]",
+                    "notificationLocale": "[parameters('autoShutdownNotificationLocale')]",
+                    "timeInMinutes": "30"
+                }
+            }
+        }
+    ]
+}

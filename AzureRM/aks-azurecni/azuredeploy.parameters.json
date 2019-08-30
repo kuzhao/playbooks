@@ -1,0 +1,24 @@
+    {
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "value": "aks-cni-4516828"
+        },
+        "dnsPrefix": {
+            "value": "aztest"
+        },
+        "agentVMSize": {
+            "value": "Standard_B2s"
+        },
+        "existingServicePrincipalObjectId": {
+            "value": "dbdadb46-d440-4572-a785-69b1d3ea50a1"
+        },
+        "existingServicePrincipalClientId": {
+            "value": "360ccf19-664b-4b6b-bca6-7a3ff841bb25"
+        },
+        "existingServicePrincipalClientSecret": {
+            "value": "cSj=:AZB/sO5oCZzHva+cTaKNdB27ZS8"
+        }
+    }
+}

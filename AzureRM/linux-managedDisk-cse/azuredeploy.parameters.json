@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmSize": {
+      "value": "Standard_B1s"
+    },
+    "sizeOfEachDataDiskInGB": {
+      "value": "4095"
+    },
+    "adminUsername": {
+      "value": "sysadmin"
+    },
+    "adminPasswordOrKey": {
+      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDP8wsHEF7dk5LDAbuNIT+Xy9i4A0FpL72puX1lvuZI86uEvWB2scN8dfzflCdilGut5lv3TvvL1SpRHdudo6e1aypJaBLEu5/jqfjrFmYw4ZCjgXLL7jYDFRaXoF/5wqhUfgLUnr6i6TH6JHdhdGE7CUCRoVlqtHVorTjTAxdCTVSf3HfPKmGuhe2vPmmmf2CFfH7j7yvZ5o821QaI63fsqyYIq5wgs6uvRkzMSLpnbezdW95dH4WC0PGJAGa4MHugyAle13Bqe88khyuWEPhRA+90BD//Grjyedk26DzYMhsQbiUbnVbCA4z8tg2gGs0yQn7V5vNtn6p+xxxZz36t kuzhao@MININT-VB50P5R"
+    },
+    "commandToExecute": {
+      "value": "cat /etc/os-release"
+    },
+    "autoShutdownStatus": {
+      "value": "Enabled"
+    },
+    "autoShutdownTime": {
+      "value": "13:00"
+    },
+    "autoShutdownTimeZone": {
+      "value": "UTC"
+    },
+    "autoShutdownNotificationStatus": {
+      "value": "Disabled"
+    },
+    "autoShutdownNotificationLocale": {
+      "value": "en"
+    }
+  }
+}
