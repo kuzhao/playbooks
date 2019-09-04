@@ -1,0 +1,2 @@
+# ignore Terraform temp files
+.terraform
