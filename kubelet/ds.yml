@@ -1,0 +1,19 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ubuntu
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      name: ubuntutest
+  template:
+    metadata:
+      labels:
+        name: ubuntutest
+    spec:
+      containers:
+      - name: ubuntu
+        image: ubuntu:18.04
+        command: ['bash', '-c', 'sleep 3600']
