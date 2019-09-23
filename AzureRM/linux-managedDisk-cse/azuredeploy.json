@@ -26,8 +26,7 @@
       }
     },
     "OSVersion": {
-      "type": "string",
-      "defaultValue": "18.04-LTS",
+      "type": "object",
       "metadata": {
         "description": "OS version number."
       }
@@ -77,15 +76,13 @@
   },
   "variables": {
     "scenarioPrefix": "testlinux",
-    "imagePublisher": "Canonical",
-    "imageOffer": "UbuntuServer",
-    "nicName": "[concat(variables('scenarioPrefix'),'Nic')]",
     "addressPrefix": "172.10.0.0/16",
-    "subnetName": "[concat(variables('scenarioPrefix'),'Subnet')]",
-    "subnetPrefix": "172.10.3.0/24",
+    "subnetName": "[concat(variables('scenarioPrefix'),'Subnet2')]",
+    "subnetPrefix": "172.10.5.0/24",
     "publicIPAddressName": "[concat(variables('scenarioPrefix'),'PublicIp')]",
     "publicIPAddressType": "Dynamic",
-    "vmName": "[concat(variables('scenarioPrefix'),'VM')]",
+    "vmName": "[concat(variables('scenarioPrefix'),'VM2')]",
+    "nicName": "[concat(variables('vmName'),'Nic')]",
     "virtualNetworkName": "[concat(variables('scenarioPrefix'),'Vnet')]",
     "dnsLabelPrefix": "[concat(variables('scenarioPrefix'), '-pub')]",
     "linuxConfiguration": {
@@ -216,17 +213,16 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "[parameters('OSVersion')]",
+            "publisher": "[parameters('OSVersion').Publisher]",
+            "offer": "[parameters('OSVersion').Offer]",
+            "sku": "[parameters('OSVersion').Image]",
             "version": "latest"
           },
           "osDisk": {
             "createOption": "FromImage",
             "managedDisk": {
-              "storageAccountType": "Premium_LRS"
-            },
-            "caching": "ReadWrite"
+              "storageAccountType": "StandardSSD_LRS"
+            }
           }
         },
         "networkProfile": {

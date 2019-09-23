@@ -182,6 +182,7 @@
             "location": "[parameters('location')]",
             "tags": {},
             "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]",
                 "[concat('Microsoft.Resources/deployments/', 'ClusterSubnetRoleAssignmentDeployment')]"
             ],
             "properties": {
