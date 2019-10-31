@@ -75,7 +75,7 @@
             }
         },
         "kubernetesVersion": {
-            "defaultValue": "1.12.8",
+            "defaultValue": "1.14.6",
             "type": "string",
             "metadata": {
                 "description": "The version of Kubernetes."
@@ -212,6 +212,7 @@
                 },
                 "networkProfile": {
                     "networkPlugin": "[parameters('networkPlugin')]",
+                    "networkPolicy": "calico",
                     "serviceCidr": "[parameters('serviceCidr')]",
                     "dnsServiceIP": "[parameters('dnsServiceIP')]",
                     "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]"
@@ -224,6 +225,9 @@
             "apiVersion": "2017-05-10",
             "subscriptionId": "[subscription().subscriptionId]",
             "resourceGroup": "[resourceGroup().name]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "template": {
