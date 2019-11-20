@@ -45,7 +45,7 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master",
+            "defaultValue": "https://raw.githubusercontent.com/kuzhao/playbooks/master/AzureRM/elasticsearch-vmss",
             "metadata": {
                 "description": "Change this value to your repo name if deploying from a fork"
             }
@@ -88,8 +88,7 @@
             "sku": "18.04-LTS",
             "version": "latest"
         },
-        "elasticSetupScriptUrl": "[concat(parameters('_artifactsLocation'), '/elasticsearch-vmss/install-elasticsearch.sh', parameters('_artifactsLocationSasToken'))]",
-        "diskSetupScriptUrl": "[concat(parameters('_artifactsLocation'), '/shared_scripts/ubuntu/vm-disk-utils-0.1.sh', parameters('_artifactsLocationSasToken'))]"
+        "elasticSetupScriptUrl": "[concat(parameters('_artifactsLocation'), '/install-elasticsearch.sh', parameters('_artifactsLocationSasToken'))]"        
     },
     "resources": [
         {
@@ -357,8 +356,7 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "fileUris": [
-                                "[variables('elasticSetupScriptUrl')]",
-                                "[variables('diskSetupScriptUrl')]"
+                                "[variables('elasticSetupScriptUrl')]"
                             ],
                             "commandToExecute": "[concat('bash install-elasticsearch.sh -m -n ', parameters('clusterName'))]"
                         }
