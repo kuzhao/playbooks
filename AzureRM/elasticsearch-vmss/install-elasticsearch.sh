@@ -97,7 +97,7 @@ install_java()
     fi
     
     log "Installing Java"
-    apt-get install -y openjdk-11-jre
+    apt-get install -y openjdk-9-jre
     
     java -version
     if [ $? -ne 0 ]; then

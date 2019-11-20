@@ -85,7 +85,7 @@
         "imageReference": {
             "publisher": "Canonical",
             "offer": "UbuntuServer",
-            "sku": "18.04-LTS",
+            "sku": "16.04.0-LTS",
             "version": "latest"
         },
         "elasticSetupScriptUrl": "[concat(parameters('_artifactsLocation'), '/install-elasticsearch.sh', parameters('_artifactsLocationSasToken'))]"        
