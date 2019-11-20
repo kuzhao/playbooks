@@ -97,6 +97,7 @@ install_java()
     fi
     
     log "Installing Java"
+    apt-get update -y 
     apt-get install -y openjdk-11-jre
     
     java -version
