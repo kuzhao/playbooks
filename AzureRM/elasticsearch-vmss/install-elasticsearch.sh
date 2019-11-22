@@ -220,7 +220,7 @@ start_service()
         fi    
     fi
 }
-
+sleep 30
 log "starting elasticsearch setup"
 
 install_java
