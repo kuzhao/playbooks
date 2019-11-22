@@ -114,16 +114,10 @@ install_es()
     echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list    
     apt-get update -y 
     apt-get install -y elasticsearch
-    pushd /usr/share/elasticsearch/
-    bin/elasticsearch-plugin install x-pack --batch
-    popd
     
     if [ ${IS_DATA_NODE} -eq 0 ]; 
     then
         apt-get install -y kibana
-        pushd /usr/share/kibana/
-        bin/kibana-plugin install x-pack
-        popd
     fi
 }
 
@@ -133,11 +127,12 @@ configure_es()
 	mv /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.bak
 	echo "cluster.name: $CLUSTER_NAME" >> /etc/elasticsearch/elasticsearch.yml
 	echo "node.name: ${HOSTNAME}" >> /etc/elasticsearch/elasticsearch.yml
-	echo "discovery.zen.minimum_master_nodes: 1" >> /etc/elasticsearch/elasticsearch.yml
+	echo 'cluster.initial_master_nodes: ["10.0.0.10"]' >> /etc/elasticsearch/elasticsearch.yml
 	echo 'discovery.seed_hosts: ["10.0.0.10"]' >> /etc/elasticsearch/elasticsearch.yml
 	echo "network.host: _site_" >> /etc/elasticsearch/elasticsearch.yml
 	echo "bootstrap.memory_lock: true" >> /etc/elasticsearch/elasticsearch.yml
-        echo "xpack.security.enabled: false" >> /etc/elasticsearch/elasticsearch.yml
+    echo "xpack.security.enabled: false" >> /etc/elasticsearch/elasticsearch.yml
+    echo "path.logs: /var/log/elasticsearch" >> /etc/elasticsearch/elasticsearch.yml
 
 	if [ ${IS_DATA_NODE} -eq 1 ]; then
 	    echo "node.master: false" >> /etc/elasticsearch/elasticsearch.yml
@@ -172,7 +167,7 @@ configure_system()
         # Kibana    
         IP_ADDRESS=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
         echo "server.host: \"$IP_ADDRESS\"" >> /etc/kibana/kibana.yml
-        echo "elasticsearch.url: \"http://$IP_ADDRESS:9200\"" >> /etc/kibana/kibana.yml
+        echo "elasticsearch.hosts: \"http://$IP_ADDRESS:9200\"" >> /etc/kibana/kibana.yml
         echo "xpack.security.enabled: false" >> /etc/kibana/kibana.yml
         chown -R kibana:kibana /usr/share/kibana
     else
