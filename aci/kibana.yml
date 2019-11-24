@@ -1,0 +1,47 @@
+apiVersion: 2018-10-01
+location: eastus
+name: myContainerGroup
+properties:
+  containers:
+  - name: aci-tutorial-app
+    properties:
+      image: docker.elastic.co/kibana/kibana
+      resources:
+        requests:
+          cpu: 2
+          memoryInGb: 1.5
+      ports:
+      - port: 6001
+      environmentVariables:
+      - name: ELASTICSEARCH_HOSTS
+        value: 'http://elastic-317509144.eastus.cloudapp.azure.com:9200'
+      - name: SERVER_PORT
+        value: 6001
+      - name: XPACK_SECURITY_ENABLED
+        value: false
+  - name: aci-tutorial-app-2
+    properties:
+      image: docker.elastic.co/kibana/kibana
+      resources:
+        requests:
+          cpu: 2
+          memoryInGb: 1.5
+      ports:
+      - port: 6002
+      environmentVariables:
+      - name: ELASTICSEARCH_HOSTS
+        value: 'http://elastic-317509144.eastus.cloudapp.azure.com:9200'
+      - name: SERVER_PORT
+        value: 6002
+      - name: XPACK_SECURITY_ENABLED
+        value: false
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: '6001'
+    - protocol: tcp
+      port: '6002'
+tags: null
+type: Microsoft.ContainerInstance/containerGroups
