@@ -31,7 +31,7 @@
             }
         },
         "agentCount": {
-            "defaultValue": 3,
+            "defaultValue": 1,
             "minValue": 1,
             "maxValue": 50,
             "type": "int",
@@ -75,7 +75,7 @@
             }
         },
         "kubernetesVersion": {
-            "defaultValue": "1.14.7",
+            "defaultValue": "1.15.5",
             "type": "string",
             "metadata": {
                 "description": "The version of Kubernetes."
@@ -178,7 +178,7 @@
         {
             "type": "Microsoft.ContainerService/managedClusters",
             "name": "[parameters('resourceName')]",
-            "apiVersion": "2018-03-31",
+            "apiVersion": "2019-08-01",
             "location": "[parameters('location')]",
             "tags": {},
             "dependsOn": [
@@ -213,7 +213,6 @@
                 },
                 "networkProfile": {
                     "networkPlugin": "[parameters('networkPlugin')]",
-                    "networkPolicy": "calico",
                     "serviceCidr": "[parameters('serviceCidr')]",
                     "dnsServiceIP": "[parameters('dnsServiceIP')]",
                     "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]"
