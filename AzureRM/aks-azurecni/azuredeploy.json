@@ -40,7 +40,7 @@
             }
         },
         "agentVMSize": {
-            "defaultValue": "Standard_D2_v2",
+            "defaultValue": "Standard_D2s_v3",
             "type": "string",
             "metadata": {
                 "description": "The size of the Virtual Machine."
@@ -75,7 +75,7 @@
             }
         },
         "kubernetesVersion": {
-            "defaultValue": "1.15.5",
+            "defaultValue": "1.16.4",
             "type": "string",
             "metadata": {
                 "description": "The version of Kubernetes."
@@ -138,11 +138,13 @@
     "variables": {
         "vNet": {
             "name": "[concat('aksVnet-', resourceGroup().location)]",
-            "addressSpacePrefix": "65.6.0.0/16",
+            "addressSpacePrefix": "172.19.0.0/16",
             "subnetName": "subnet1",
-            "subnetPrefix": "65.6.27.0/24",
+            "subnetPrefix": "172.19.10.0/24",
+            "subnetName2": "subnet2",
+            "subnet2Prefix": "172.19.17.0/24",
             "gatewayName": "vNet1-Gateway",
-            "gatewaySubnetPrefix": "65.6.200.224/27",
+            "gatewaySubnetPrefix": "172.19.255.0/28",
             "gatewayPublicIPName": "[concat('gw1pip', uniqueString(resourceGroup().id))]"
         }
     },
@@ -171,6 +173,12 @@
                         "properties": {
                             "addressPrefix": "[variables('vNet').gatewaySubnetPrefix]"
                         }
+                    },
+                    {
+                        "name": "[variables('vNet').subnetName2]",
+                        "properties": {
+                            "addressPrefix": "[variables('vNet').subnet2Prefix]"
+                        }
                     }
                 ]
             }
@@ -178,7 +186,7 @@
         {
             "type": "Microsoft.ContainerService/managedClusters",
             "name": "[parameters('resourceName')]",
-            "apiVersion": "2019-08-01",
+            "apiVersion": "2019-10-01",
             "location": "[parameters('location')]",
             "tags": {},
             "dependsOn": [
@@ -207,6 +215,10 @@
                         "type": "VirtualMachineScaleSets"
                     }
                 ],
+                "windowsProfile": {
+                    "adminUsername": "sysadmin",
+                    "adminPassword": "Abcd!2345678"
+                },
                 "servicePrincipalProfile": {
                     "clientId": "[parameters('existingServicePrincipalClientId')]",
                     "secret": "[parameters('existingServicePrincipalClientSecret')]"
@@ -215,7 +227,8 @@
                     "networkPlugin": "[parameters('networkPlugin')]",
                     "serviceCidr": "[parameters('serviceCidr')]",
                     "dnsServiceIP": "[parameters('dnsServiceIP')]",
-                    "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]"
+                    "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]",
+                    "loadBalancerSku": "Standard"
                 }
             }
         },

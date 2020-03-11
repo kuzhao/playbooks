@@ -9,7 +9,10 @@
             "value": "aztest"
         },
         "agentVMSize": {
-            "value": "Standard_B2s"
+            "value": "Standard_A2_v2"
+        },
+        "agentCount": {
+            "value": 1
         },
         "existingServicePrincipalObjectId": {
             "value": "dbdadb46-d440-4572-a785-69b1d3ea50a1"
