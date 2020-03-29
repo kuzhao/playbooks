@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubedash-ingress
+spec:
+  tls:
+  - hosts:
+    - 52.152.248.57
+  rules:
+  - http:
+      paths:
+      - path: /dash
+        backend:
+          serviceName: tea-svc
+          servicePort: 80
