@@ -23,27 +23,6 @@ variables:
   
 
 stages:
-- stage: Build
-  displayName: Build stage
-  jobs:  
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
-          
-    - upload: manifests
-      artifact: manifests
-
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
@@ -57,23 +36,16 @@ stages:
     strategy:
       runOnce:
         deploy:
-          steps:
-          - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
+          steps:          
+          - task: Kubernetes@1
             inputs:
-              action: createSecret
-              secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
-              
-          - task: KubernetesManifest@0
-            displayName: Deploy to Kubernetes cluster
-            inputs:
-              action: deploy
-              manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/$(imageRepository):$(tag)
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceEndpoint: 'aks-8398473-test1'
+              namespace: 'test1'
+              command: 'apply'
+              arguments: '-f kubelet/samples/samplehello.yml'
+              secretType: 'dockerRegistry'
+              containerRegistryType: 'Azure Container Registry'
+              versionSpec: '1.15.10'
+              checkLatest: true
 
