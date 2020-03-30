@@ -42,7 +42,7 @@ stages:
               kubernetesServiceEndpoint: 'aks-8398473-test1'
               namespace: 'test1'
               command: 'apply'
-              arguments: '-f kubelet/samples/samplehello.yml'
+              arguments: '-f $(Pipeline.Workspace)/kubelet/samples/samplehello.yml'
               secretType: 'dockerRegistry'
               containerRegistryType: 'Azure Container Registry'
               versionSpec: '1.15.10'
