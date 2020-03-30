@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: dujfe 
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dujfe 
+    spec:
+      containers:
+        - name: dujfe 
+          image: reg384323.azurecr.io/dujfe
+          ports:
+          - containerPort: 8088
