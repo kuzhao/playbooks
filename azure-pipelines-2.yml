@@ -36,15 +36,9 @@ stages:
       runOnce:
         deploy:
           steps:          
-          - task: Kubernetes@1
+          - task: KubernetesManifest@0
             inputs:
-              connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'aks-8398473-test1'
+              action: 'deploy'
+              kubernetesServiceConnection: 'aks-8398473-test1'
               namespace: 'test1'
-              command: 'apply'
-              arguments: '-f $(Pipeline.Workspace)/kubelet/samples/samplehello.yml'
-              secretType: 'dockerRegistry'
-              containerRegistryType: 'Azure Container Registry'
-              versionSpec: '1.15.10'
-              checkLatest: true
-
+              manifests: 'kubelet/samples/samplehello.yml'
