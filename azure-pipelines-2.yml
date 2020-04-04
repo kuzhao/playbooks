@@ -40,6 +40,7 @@ stages:
           - task: KubernetesManifest@0
             inputs:
               action: 'deploy'
-              kubernetesServiceConnection: 'aks-8398473-test1'
+              kubernetesServiceConnection: 'test-aks-aks-8398473-default-1585967152746'
               namespace: 'test1'
               manifests: 'kubelet/samples/samplehello.yml'
+              
