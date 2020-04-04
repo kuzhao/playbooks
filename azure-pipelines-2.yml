@@ -36,6 +36,7 @@ stages:
       runOnce:
         deploy:
           steps:          
+          - checkout: self
           - task: KubernetesManifest@0
             inputs:
               action: 'deploy'
