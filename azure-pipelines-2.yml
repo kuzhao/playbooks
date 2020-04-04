@@ -31,7 +31,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'kuzhaoplaybooks-1992.test1'
+    environment: 'test-aks'
     strategy:
       runOnce:
         deploy:
