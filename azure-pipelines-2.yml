@@ -9,18 +9,8 @@ resources:
 - repo: self
 
 variables:
-
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'd2ec8b52-86eb-4033-afe4-05221c77a1a2'
-  imageRepository: 'dummy'
-  containerRegistry: 'reg384323.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
-  tag: '$(Build.BuildId)'
-  imagePullSecret: 'reg38432320745f3a-auth'
-
   # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-  
+  vmImageName: 'ubuntu-latest'  
 
 stages:
 - stage: Deploy
@@ -40,7 +30,7 @@ stages:
           - task: KubernetesManifest@0
             inputs:
               action: 'deploy'
-              kubernetesServiceConnection: 'test-aks-aks-8398473-default-1585967152746'
+              kubernetesServiceConnection: 'aks-conn'
               namespace: 'default'
               manifests: 'kubelet/samples/samplehello.yml'
               
