@@ -32,5 +32,5 @@ stages:
               action: 'deploy'
               kubernetesServiceConnection: 'aks-conn'
               namespace: 'default'
-              manifests: 'kubelet/samples/samplehello.yml'
+              manifests: 'kubelet/samples/azure-vote-all-in-one-redis.yaml'
               
