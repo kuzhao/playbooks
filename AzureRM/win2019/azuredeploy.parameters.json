@@ -10,6 +10,9 @@
     },
     "dnsLabelPrefix": {
       "value": "azureinternal-1736988018"
+    },
+    "windowsOSVersion": {
+      "value": "2019-Datacenter-smalldisk"
     }
   }
 }
