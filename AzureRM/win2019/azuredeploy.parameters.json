@@ -13,6 +13,9 @@
     },
     "windowsOSVersion": {
       "value": "2019-Datacenter-smalldisk"
+    },
+    "vmName":{
+      "value": "dc01"
     }
   }
 }
