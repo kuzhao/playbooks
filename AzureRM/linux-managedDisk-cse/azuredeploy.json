@@ -72,19 +72,31 @@
     },
     "autoShutdownNotificationLocale": {
       "type": "string"
+    },
+    "scenarioPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "A CIDR notation IP for Docker bridge."
+      }
     }
   },
   "variables": {
-    "scenarioPrefix": "testlinux",
-    "addressPrefix": "172.10.0.0/16",
-    "subnetName": "[concat(variables('scenarioPrefix'),'Subnet2')]",
-    "subnetPrefix": "172.10.5.0/24",
-    "publicIPAddressName": "[concat(variables('scenarioPrefix'),'PublicIp')]",
+    "publicIPAddressName": "[concat(parameters('scenarioPrefix'),'PublicIp')]",
     "publicIPAddressType": "Dynamic",
-    "vmName": "[concat(variables('scenarioPrefix'),'VM2')]",
+    "vmName": "[concat(parameters('scenarioPrefix'),'VM2')]",
     "nicName": "[concat(variables('vmName'),'Nic')]",
-    "virtualNetworkName": "[concat(variables('scenarioPrefix'),'Vnet')]",
-    "dnsLabelPrefix": "[concat(variables('scenarioPrefix'), '-pub')]",
+    "dnsLabelPrefix": "[concat(parameters('scenarioPrefix'), '-pub')]",
+    "vNet": {
+      "name": "[concat(parameters('scenarioPrefix'),'Vnet')]",
+      "addressSpacePrefix": "172.19.0.0/16",
+      "subnetName": "subnet1",
+      "subnetPrefix": "172.19.10.0/24",
+      "subnetName2": "subnet2",
+      "subnet2Prefix": "172.19.17.0/24",
+      "gatewayName": "vNet1-Gateway",
+      "gatewaySubnetPrefix": "172.19.255.0/28",
+      "gatewayPublicIPName": "[concat('gw1pip', uniqueString(resourceGroup().id))]"
+    },
     "linuxConfiguration": {
       "disablePasswordAuthentication": true,
       "ssh": {
@@ -96,7 +108,7 @@
         ]
       }
     },
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, variables('vNet').subnetName)]"
   },
   "resources": [
     {
@@ -114,19 +126,19 @@
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2018-11-01",
-      "name": "[variables('virtualNetworkName')]",
+      "name": "[variables('vNet').name]",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[variables('addressPrefix')]"
+            "[variables('vNet').addressSpacePrefix]"
           ]
         },
         "subnets": [
           {
-            "name": "[variables('subnetName')]",
+            "name": "[variables('vNet').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('subnetPrefix')]"
+              "addressPrefix": "[variables('vNet').subnetPrefix]"
             }
           }
         ]
@@ -139,7 +151,7 @@
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -166,42 +178,6 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
-      "metadata": {
-        "dataDisks": [
-          {
-            "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
-            "lun": 0,
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
-            },
-            "createOption": "Empty"
-          },
-          {
-            "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
-            "lun": 1,
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
-            },
-            "createOption": "Empty"
-          },
-          {
-            "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
-            "lun": 2,
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
-            },
-            "createOption": "Empty"
-          },
-          {
-            "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
-            "lun": 3,
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
-            },
-            "createOption": "Empty"
-          }
-        ]
-      },
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
@@ -278,5 +254,6 @@
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+  }
 }

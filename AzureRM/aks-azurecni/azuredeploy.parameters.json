@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "resourceName": {
-            "value": "aks-cni-4516828"
+            "value": "aks-cni-87863"
         },
         "dnsPrefix": {
             "value": "aztest"
@@ -14,14 +14,8 @@
         "agentCount": {
             "value": 1
         },
-        "existingServicePrincipalObjectId": {
-            "value": "9ab65a71-3d8c-4963-95cd-65dc763de00f"
-        },
-        "existingServicePrincipalClientId": {
-            "value": "63a64a57-08de-48b9-9abf-93864829bed2"
-        },
-        "existingServicePrincipalClientSecret": {
-            "value": "bzI3K8[8m1TK:edQAjVD@hmlE@mIPYU="
+        "scenarioPrefix": {
+            "value": "lab"
         }
     }
 }

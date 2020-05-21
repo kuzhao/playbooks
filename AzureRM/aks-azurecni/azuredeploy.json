@@ -46,24 +46,6 @@
                 "description": "The size of the Virtual Machine."
             }
         },
-        "existingServicePrincipalObjectId": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Oject ID against which the Network Contributor roles will be assigned on the subnet"
-            }
-        },
-        "existingServicePrincipalClientId": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Client ID (used by cloudprovider)"
-            }
-        },
-        "existingServicePrincipalClientSecret": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The Service Principal Client Secret."
-            }
-        },
         "osType": {
             "defaultValue": "Linux",
             "allowedValues": [
@@ -133,11 +115,17 @@
             "metadata": {
                 "description": "A CIDR notation IP for Docker bridge."
             }
+        },
+        "scenarioPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "A CIDR notation IP for Docker bridge."
+            }
         }
     },
     "variables": {
         "vNet": {
-            "name": "[concat('aksVnet-', resourceGroup().location)]",
+            "name": "[concat(parameters('scenarioPrefix'),'Vnet')]",
             "addressSpacePrefix": "172.19.0.0/16",
             "subnetName": "subnet1",
             "subnetPrefix": "172.19.10.0/24",
@@ -186,12 +174,11 @@
         {
             "type": "Microsoft.ContainerService/managedClusters",
             "name": "[parameters('resourceName')]",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": {},
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]",
-                "[concat('Microsoft.Resources/deployments/', 'ClusterSubnetRoleAssignmentDeployment')]"
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
             ],
             "properties": {
                 "kubernetesVersion": "[parameters('kubernetesVersion')]",
@@ -212,6 +199,7 @@
                         "storageProfile": "ManagedDisks",
                         "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vNet').name,variables('vNet').subnetName)]",
                         "maxPods": "[parameters('maxPods')]",
+                        "mode": "System",
                         "type": "VirtualMachineScaleSets"
                     }
                 ],
@@ -219,17 +207,16 @@
                     "adminUsername": "sysadmin",
                     "adminPassword": "Abcd!2345678"
                 },
-                "servicePrincipalProfile": {
-                    "clientId": "[parameters('existingServicePrincipalClientId')]",
-                    "secret": "[parameters('existingServicePrincipalClientSecret')]"
-                },
                 "networkProfile": {
                     "networkPlugin": "[parameters('networkPlugin')]",
                     "serviceCidr": "[parameters('serviceCidr')]",
                     "dnsServiceIP": "[parameters('dnsServiceIP')]",
                     "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]",
-                    "loadBalancerSku": "Basic"
+                    "loadBalancerSku": "Standard"
                 }
+            },            
+            "identity": {
+                "type": "SystemAssigned"
             }
         },
         {
@@ -255,8 +242,8 @@
                             "name": "[concat(variables('vNet').name,'/', variables('vNet').subnetName,'/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
-                                "principalId": "[parameters('existingServicePrincipalObjectId')]",
-                                "scope": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vNet').name,variables('vNet').subnetName)]"
+                                "principalId": "[reference(parameters('resourceName')).identityProfile.kubeletidentity.objectId]",
+                                "scope": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vNet').name, '/subnets/', variables('vNet').subnetName)]"
                             }
                         }
                     ]
