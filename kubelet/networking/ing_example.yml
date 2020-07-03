@@ -1,15 +1,17 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: kubedash-ingress
+  name: admin-ingress
 spec:
   tls:
   - hosts:
-    - 52.152.248.57
+    - ingress-57834.westus2.cloudapp.azure.com
+    secretName: k8dash
   rules:
-  - http:
+  - host: ingress-57834.westus2.cloudapp.azure.com
+    http:
       paths:
-      - path: /dash
+      - path: /
         backend:
-          serviceName: tea-svc
+          serviceName: k8dash
           servicePort: 80
