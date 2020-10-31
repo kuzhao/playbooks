@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  labels:
+    app: druid
+    component: historical
+    heritage: Helm
+    release: druid
+  name: nginx-app1
+spec:
+  selector:
+    matchLabels:
+      app: druid
+      component: historical
+      release: druid
+  replicas: 2
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: druid
+        component: historical
+        release: druid
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - historical
+              topologyKey: kubernetes.io/hostname
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: Exists
+              - key: component
+                operator: NotIn
+                values:
+                - historical
+            topologyKey: kubernetes.io/hostname
+
