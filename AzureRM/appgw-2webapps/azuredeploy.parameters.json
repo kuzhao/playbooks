@@ -2,6 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "scenarioPrefix": {
+      "value": "lab"
+    },
     "addressPrefix": {
       "value": "10.0.0.0/16"
     },
@@ -14,21 +17,12 @@
     "capacity": {
       "value": 2
     },
-    "azureWebApp1": {
-      "value": "web602656619.azurewebsites.net"
-    },
-    "azureWebApp2": {
-      "value": "web602656620.azurewebsites.net"
-    },
     "probeEnabled": {
       "value": true
     },
-    "site1Name": {
+    "siteName": {
       "value": "web602656619"
     },
-    "site2Name": {
-      "value": "web602656620"
-    }, 
     "administratorLogin": {
       "value": "sysadmin"
     },

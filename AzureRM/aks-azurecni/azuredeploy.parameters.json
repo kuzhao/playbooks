@@ -2,17 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "resourceName": {
-            "value": "aks-cni-87863"
-        },
-        "dnsPrefix": {
-            "value": "aztest"
-        },
-        "agentVMSize": {
-            "value": "Standard_A2_v2"
-        },
-        "agentCount": {
-            "value": 1
+        "VMSize": {
+            "value": "Standard_B2s"
         },
         "scenarioPrefix": {
             "value": "lab"

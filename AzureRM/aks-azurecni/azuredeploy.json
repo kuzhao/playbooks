@@ -2,23 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "resourceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Managed Cluster resource."
-            }
-        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "The Azure location of the AKS resource."
-            }
-        },
-        "dnsPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
             }
         },
         "osDiskSizeGB": {
@@ -39,7 +27,7 @@
                 "description": "The number of agent nodes for the cluster. Production workloads have a recommended minimum of 3."
             }
         },
-        "agentVMSize": {
+        "VMSize": {
             "defaultValue": "Standard_D2s_v3",
             "type": "string",
             "metadata": {
@@ -57,7 +45,7 @@
             }
         },
         "kubernetesVersion": {
-            "defaultValue": "1.15.10",
+            "defaultValue": "1.17.7",
             "type": "string",
             "metadata": {
                 "description": "The version of Kubernetes."
@@ -124,6 +112,8 @@
         }
     },
     "variables": {
+        "clusterName": "[concat(parameters('scenarioPrefix'),'-aks-cni')]",
+        "dnsPrefix": "[concat(parameters('scenarioPrefix'),'-aks-cni')]",
         "vNet": {
             "name": "[concat(parameters('scenarioPrefix'),'Vnet')]",
             "addressSpacePrefix": "172.19.0.0/16",
@@ -173,7 +163,7 @@
         },
         {
             "type": "Microsoft.ContainerService/managedClusters",
-            "name": "[parameters('resourceName')]",
+            "name": "[variables('clusterName')]",
             "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": {},
@@ -183,7 +173,7 @@
             "properties": {
                 "kubernetesVersion": "[parameters('kubernetesVersion')]",
                 "enableRBAC": "[parameters('enableRBAC')]",
-                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "dnsPrefix": "[variables('dnsPrefix')]",
                 "addonProfiles": {
                     "httpApplicationRouting": {
                         "enabled": "[parameters('enableHttpApplicationRouting')]"
@@ -191,15 +181,32 @@
                 },
                 "agentPoolProfiles": [
                     {
-                        "name": "agentpool",
+                        "name": "master",
                         "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
                         "count": "[parameters('agentCount')]",
-                        "vmSize": "[parameters('agentVMSize')]",
+                        "vmSize": "[parameters('VMSize')]",
                         "osType": "[parameters('osType')]",
                         "storageProfile": "ManagedDisks",
                         "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vNet').name,variables('vNet').subnetName)]",
                         "maxPods": "[parameters('maxPods')]",
                         "mode": "System",
+                        "type": "VirtualMachineScaleSets",
+                        "enableAutoScaling": true,
+                        "minCount": 1,
+                        "maxCount": 3,
+                        "nodeTaints": [
+                            "role=system:PreferNoSchedule"
+                        ]
+                    },
+                    {
+                        "name": "worker1",
+                        "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "count": "[parameters('agentCount')]",
+                        "vmSize": "[parameters('VMSize')]",
+                        "osType": "[parameters('osType')]",
+                        "storageProfile": "ManagedDisks",
+                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vNet').name,variables('vNet').subnetName)]",
+                        "maxPods": "[parameters('maxPods')]",
                         "type": "VirtualMachineScaleSets"
                     }
                 ],
@@ -242,7 +249,7 @@
                             "name": "[concat(variables('vNet').name,'/', variables('vNet').subnetName,'/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
-                                "principalId": "[reference(parameters('resourceName')).identityProfile.kubeletidentity.objectId]",
+                                "principalId": "[reference(variables('clusterName')).identityProfile.kubeletidentity.objectId]",
                                 "scope": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vNet').name, '/subnets/', variables('vNet').subnetName)]"
                             }
                         }
@@ -254,7 +261,7 @@
     "outputs": {
         "controlPlaneFQDN": {
             "type": "string",
-            "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).fqdn]"
+            "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', variables('clusterName'))).fqdn]"
         }
     }
 }

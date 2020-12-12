@@ -10,7 +10,7 @@
       }
     },
     "vmSize": {
-      "value": "Standard_F8s_v2"
+      "value": "Standard_F2s_v2"
     },
     "sizeOfEachDataDiskInGB": {
       "value": "4095"
@@ -22,7 +22,7 @@
       "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDP8wsHEF7dk5LDAbuNIT+Xy9i4A0FpL72puX1lvuZI86uEvWB2scN8dfzflCdilGut5lv3TvvL1SpRHdudo6e1aypJaBLEu5/jqfjrFmYw4ZCjgXLL7jYDFRaXoF/5wqhUfgLUnr6i6TH6JHdhdGE7CUCRoVlqtHVorTjTAxdCTVSf3HfPKmGuhe2vPmmmf2CFfH7j7yvZ5o821QaI63fsqyYIq5wgs6uvRkzMSLpnbezdW95dH4WC0PGJAGa4MHugyAle13Bqe88khyuWEPhRA+90BD//Grjyedk26DzYMhsQbiUbnVbCA4z8tg2gGs0yQn7V5vNtn6p+xxxZz36t kuzhao@MININT-VB50P5R"
     },
     "commandToExecute": {
-      "value": "apt-get update -y && apt-get install -y docker.io;docker pull docker.elastic.co/elasticsearch/elasticsearch:7.4.2;docker pull docker.elastic.co/kibana/kibana:7.4.2;docker run -d --rm -p 9200:9200 -p 9300:9300 -e 'discovery.type=single-node' --name elasticsearch docker.elastic.co/elasticsearch/elasticsearch:7.4.2;docker run -d --rm --link elasticsearch:elasticsearch -p 5601:5601 --name kibana docker.elastic.co/kibana/kibana:7.4.2"
+      "value": "apt-get update -y && apt-get install -y docker.io;docker pull docker.elastic.co/elasticsearch/elasticsearch:6.8.2;docker pull docker.elastic.co/kibana/kibana:6.8.2;docker run -d --rm -p 9200:9200 -p 9300:9300 -e 'discovery.type=single-node' --name elasticsearch docker.elastic.co/elasticsearch/elasticsearch:6.8.2;docker run -d --rm --link elasticsearch:elasticsearch -p 5601:5601 --name kibana docker.elastic.co/kibana/kibana:6.8.2"
     },
     "autoShutdownStatus": {
       "value": "Enabled"

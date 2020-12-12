@@ -1,14 +1,8 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "site1Name": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of azure web app"
-            }
-        },
-        "site2Name": {
+        "siteName": {
             "type": "string",
             "metadata": {
                 "description": "Name of azure web app"
@@ -125,33 +119,9 @@
         },
         "capacity": {
             "type": "int",
-            "allowedValues": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
-            ],
             "defaultValue": 2,
             "metadata": {
                 "description": "Number of instances"
-            }
-        },
-        "azureWebApp1": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of Azure Web App 1"
-            }
-        },
-        "azureWebApp2": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of Azure Web App 2"
             }
         },
         "probeEnabled": {
@@ -167,18 +137,27 @@
             "metadata": {
                 "description": "Location for all resources."
             }
+        },
+        "scenarioPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "A CIDR notation IP for Docker bridge."
+            }
         }
     },
     "variables": {
-        "database1Name": "[concat(parameters('site1Name'), 'database')]",
-        "database2Name": "[concat(parameters('site2Name'), 'database')]",
-        "serverName": "[concat(parameters('site1Name'), 'pgserver')]",
-        "hostingPlanName": "[concat(parameters('site1Name'), 'serviceplan')]",
+        "databaseName": "[concat(parameters('siteName'), 'database')]",
+        "serverName": "[concat(parameters('siteName'), 'pgserver')]",
+        "hostingPlanName": "[concat(parameters('siteName'), 'serviceplan')]",
         "applicationGatewayName": "applicationGateway1",
         "publicIPAddressName": "publicIp1",
-        "virtualNetworkName": "virtualNetwork1",
-        "subnetName": "appGatewaySubnet",
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
+        "vNet": {
+            "name": "[concat(parameters('scenarioPrefix'),'Vnet')]",
+            "addressSpacePrefix": "172.19.0.0/16",
+            "subnetName": "appGatewaySubnet",
+            "subnetPrefix": "172.19.10.0/24"
+        },
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, variables('vNet').subnetName)]",
         "publicIPRef": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]",
         "applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways',variables('applicationGatewayName'))]"
     },
@@ -195,7 +174,7 @@
         {
             "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/virtualNetworks",
-            "name": "[variables('virtualNetworkName')]",
+            "name": "[variables('vNet').name]",
             "location": "[parameters('location')]",
             "properties": {
                 "addressSpace": {
@@ -205,7 +184,7 @@
                 },
                 "subnets": [
                     {
-                        "name": "[variables('subnetName')]",
+                        "name": "[variables('vNet').subnetName]",
                         "properties": {
                             "addressPrefix": "[parameters('subnetPrefix')]"
                         }
@@ -219,7 +198,7 @@
             "type": "Microsoft.Network/applicationGateways",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vNet').name)]",
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
             ],
             "properties": {
@@ -262,10 +241,10 @@
                         "properties": {
                             "BackendAddresses": [
                                 {
-                                    "IpAddress": "[parameters('azureWebApp1')]"
+                                    "IpAddress": "[concat(parameters('siteName'),'1.azurewebsites.net')]"
                                 },
                                 {
-                                    "IpAddress": "[parameters('azureWebApp2')]"
+                                    "IpAddress": "[concat(parameters('siteName'),'2.azurewebsites.net')]"
                                 }
                             ]
                         }
@@ -336,52 +315,32 @@
         },
         {
             "type": "Microsoft.Web/sites",
-            "name": "[parameters('site1Name')]",
+            "name": "[concat(parameters('siteName'), copyIndex())]",
             "dependsOn": [
                 "[variables('hostingPlanName')]"
             ],
+            "copy":{
+                "name": "web-copy",
+                "count": 2
+            },
             "properties": {
                 "siteConfig": {
                     "linuxFxVersion": "node|6.10",
                     "connectionStrings": [
                         {
                             "name": "defaultConnection",
-                            "ConnectionString": "[concat('Database=', variables('database1Name'), ';Server=', reference(resourceId('Microsoft.DBforPostgreSQL/servers',variables('serverName'))).fullyQualifiedDomainName, ';User Id=',parameters('administratorLogin'),'@',variables('serverName') ,';Password=',parameters('administratorLoginPassword'))]",
+                            "ConnectionString": "[concat('Database=', variables('databaseName'), copyIndex(), ';Server=', reference(resourceId('Microsoft.DBforPostgreSQL/servers',variables('serverName'))).fullyQualifiedDomainName, ';User Id=',parameters('administratorLogin'),'@',variables('serverName') ,';Password=',parameters('administratorLoginPassword'))]",
                             "type": "PostgreSQL"
                         }
                     ]
                 },
-                "name": "[parameters('site1Name')]",
+                "name": "[concat(parameters('siteName'), copyIndex())]",
                 "serverFarmId": "[variables('hostingPlanName')]",
                 "hostingEnvironment": ""
             },
             "apiVersion": "2016-03-01",
             "location": "[parameters('location')]"
-        },
-        {
-            "type": "Microsoft.Web/sites",
-            "name": "[parameters('site2Name')]",
-            "dependsOn": [
-                "[variables('hostingPlanName')]"
-            ],
-            "properties": {
-                "siteConfig": {
-                    "linuxFxVersion": "node|6.10",
-                    "connectionStrings": [
-                        {
-                            "name": "defaultConnection",
-                            "ConnectionString": "[concat('Database=', variables('database2Name'), ';Server=', reference(resourceId('Microsoft.DBforPostgreSQL/servers',variables('serverName'))).fullyQualifiedDomainName, ';User Id=',parameters('administratorLogin'),'@',variables('serverName') ,';Password=',parameters('administratorLoginPassword'))]",
-                            "type": "PostgreSQL"
-                        }
-                    ]
-                },
-                "name": "[parameters('site2Name')]",
-                "serverFarmId": "[variables('hostingPlanName')]",
-                "hostingEnvironment": ""
-            },
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]"
-        },
+        },        
         {
             "apiVersion": "2016-09-01",
             "name": "[variables('hostingPlanName')]",
@@ -433,7 +392,7 @@
                     }
                 },
                 {
-                    "name": "[variables('database1Name')]",
+                    "name": "[concat(variables('databaseName'), '1')]",
                     "type": "databases",
                     "apiVersion": "2017-12-01",
                     "properties": {
@@ -445,7 +404,7 @@
                     ]
                 },
                 {
-                    "name": "[variables('database2Name')]",
+                    "name": "[concat(variables('databaseName'), '2')]",
                     "type": "databases",
                     "apiVersion": "2017-12-01",
                     "properties": {
