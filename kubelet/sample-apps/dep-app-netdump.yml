@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component: app-dump
+  name: app-dump
+spec:
+  selector:
+    matchLabels:
+      component: app-dump
+  template:
+    metadata:
+      labels:
+        component: app-dump
+    spec:
+      volumes:
+        - name: azure
+          azureFile:
+            secretName: azurefile-secret
+            shareName: aksshare
+      containers:
+        - name: pktdump
+          image: 'ubuntu:latest'
+          command:
+            - bash
+          args:
+            - '-c'
+            - >-
+              NAME=`cat /local-hostname`;apt-get update;apt-get install -y
+              tcpdump;tcpdump -Z root -G 600 -W 1 -i any -w $NAME.pcap;mv
+              $NAME.pcap /dump/;sleep infinity
+          stdin: true
+          tty: true
+          resources: {}
+          volumeMounts:
+            - name: azure
+              mountPath: /dump
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+      hostNetwork: true
+      affinity: 
+        podAffinity:     
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - service_test_pod
+            topologyKey: topology.kubernetes.io/zone
