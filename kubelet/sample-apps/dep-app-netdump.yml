@@ -4,7 +4,9 @@ metadata:
   labels:
     component: app-dump
   name: app-dump
+  namespace: default
 spec:
+  replicas: 20
   selector:
     matchLabels:
       component: app-dump
@@ -14,38 +16,55 @@ spec:
         component: app-dump
     spec:
       volumes:
-        - name: azure
-          azureFile:
-            secretName: azurefile-secret
-            shareName: aksshare
+      - name: azure
+        azureFile:
+          secretName: azurefile-secret  # Put here the pre-created AzureFile secret object
+          shareName: aksshare  # and the fileshare name
+      - name: hostname
+        hostPath:
+          path: /etc/hostname
+          type: File
       containers:
-        - name: pktdump
-          image: 'ubuntu:latest'
-          command:
-            - bash
-          args:
-            - '-c'
-            - >-
-              NAME=`cat /local-hostname`;apt-get update;apt-get install -y
-              tcpdump;tcpdump -Z root -G 600 -W 1 -i any -w $NAME.pcap;mv
-              $NAME.pcap /dump/;sleep infinity
-          stdin: true
-          tty: true
-          resources: {}
-          volumeMounts:
-            - name: azure
-              mountPath: /dump
-          imagePullPolicy: Always
-          securityContext:
-            privileged: true
+      - name: pktdump
+        image: 'ubuntu:latest'
+        command:
+        - bash
+        args:
+        - '-c'
+        - >-
+          NAME=`cat /local-hostname`;apt-get update;apt-get install -y
+          tcpdump;tcpdump -Z root -G 120 -W 1 -i any -w $NAME.pcap;mv
+          $NAME.pcap /dump/;sleep infinity
+        stdin: true
+        tty: true
+        resources: {}
+        volumeMounts:
+        - name: azure
+          mountPath: /dump
+        - name: hostname
+          mountPath: /local-hostname
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
       hostNetwork: true
       affinity: 
         podAffinity:     
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
-              matchExpressions:
+              matchExpressions:  # Use "key" in "value" to select nodes where the target pods are running
               - key: app
                 operator: In
                 values:
-                - service_test_pod
+                - service_test_pod              
+            topologyKey: topology.kubernetes.io/zone
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: Exists
+              - key: component
+                operator: In
+                values:
+                - app-dump
             topologyKey: topology.kubernetes.io/zone
