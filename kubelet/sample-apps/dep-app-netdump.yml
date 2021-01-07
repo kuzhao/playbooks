@@ -52,11 +52,12 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:  # Use "key" in "value" to select nodes where the target pods are running
-              - key: app
+              - key: k8s-app
                 operator: In
                 values:
-                - service_test_pod              
+                - kube-dns
             topologyKey: topology.kubernetes.io/zone
+            namespaces: ["kube-system"]  # Specify the namespace(s) of the target pods
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
