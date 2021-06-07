@@ -1,3 +1,5 @@
+# Before applying this manifest, you need to create and fill in the secret for your
+# Azure fileshare, which contains the storageAccount name and its credential.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
