@@ -16,6 +16,23 @@
                 "description": "Password for the Virtual Machine."
             }
         },
+        "gatewaySku": {
+            "type": "string",
+            "defaultValue": "VpnGw1",
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "HighPerformance",
+                "VpnGw1",
+                "VpnGw2",
+                "VpnGw3",
+                "VpnGw4",
+                "VpnGw5"
+            ],
+            "metadata": {
+                "description": "The SKU for the VPN Gateway. Cannot be Basic SKU."
+            }
+        },
         "ubuntuOSVersion": {
             "type": "string",
             "defaultValue": "16.04.0-LTS",
@@ -45,29 +62,19 @@
         "imagePublisher": "Canonical",
         "imageOffer": "UbuntuServer",
         "nicName": "myVMNic",
-        "publicIPAddressName": "[concat(parameters('scenarioPrefix'),'-PublicIp')]",
+        "publicIPAddressName": "myPublicIP",
         "publicIPAddressType": "Dynamic",
+        "gatewayPublicIPName": "gw1pip",
         "vmName": "[concat(parameters('scenarioPrefix'),'-VM')]",
-        "vNet1": {
-            "name": "[concat(parameters('scenarioPrefix'),'-Vnet1')]",
-            "addressSpacePrefix": "172.16.0.0/12",
+        "vNet": {
+            "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
+            "addressSpacePrefix": "65.6.0.0/16",
             "subnetName": "subnet1",
-            "subnetPrefix": "172.16.0.0/16",
-            "gatewaySubnetPrefix": "172.31.255.0/27",
-            "gatewayPublicIPName": "[concat('gw1pip', uniqueString(resourceGroup().id))]",
-            "connectionName": "vNet1-to-vNet2",
+            "subnetPrefix": "65.6.27.0/24",
+            "gatewaySubnetPrefix": "65.6.200.224/27",
             "asn": 65010
         },
-        "vNet2": {
-            "name": "[concat(parameters('scenarioPrefix'),'-Vnet2')]",
-            "addressSpacePrefix": "192.168.0.0/16",
-            "subnetName": "subnet1",
-            "subnetPrefix": "192.168.1.0/24",
-            "gatewaySubnetPrefix": "192.168.255.0/27",
-            "gatewayPublicIPName": "[concat('gw2pip', uniqueString(resourceGroup().id))]",
-            "connectionName": "vNet2-to-vNet1",
-            "asn": 65050
-        },
+        "gateway1SubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks',variables('vNet').name),'/subnets/','GatewaySubnet')]",
         "autoShutdown": {
             "autoShutdownTime": "19:00",
             "autoShutdownTimeZone": "UTC",
@@ -79,90 +86,58 @@
         {
             "apiVersion": "2016-03-30",
             "type": "Microsoft.Network/virtualNetworks",
-            "name": "[variables(concat('vNet',copyIndex(1))).name]",
+            "name": "[variables('vNet').name]",
             "location": "[resourceGroup().location]",
-            "copy": {
-                "name": "vnet-copy",
-                "count": 2
-            },
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[variables(concat('vNet',copyIndex(1))).addressSpacePrefix]"
+                        "[variables('vNet').addressSpacePrefix]"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "[variables(concat('vNet',copyIndex(1))).subnetName]",
+                        "name": "[variables('vNet').subnetName]",
                         "properties": {
-                            "addressPrefix": "[variables(concat('vNet',copyIndex(1))).subnetPrefix]"
+                            "addressPrefix": "[variables('vNet').subnetPrefix]"
                         }
                     },
                     {
                         "name": "GatewaySubnet",
                         "properties": {
-                            "addressPrefix": "[variables(concat('vNet',copyIndex(1))).gatewaySubnetPrefix]"
+                            "addressPrefix": "[variables('vNet').gatewaySubnetPrefix]"
                         }
                     }
                 ]
             }
         },
         {
-            "name": "[concat(variables('vNet1').name,'/peering')]",
-            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-            "apiVersion": "2019-12-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/',variables('vNet1').name)]",
-                "[resourceId('Microsoft.Network/virtualNetworks/',variables('vNet2').name)]"
-            ],
-            "properties": {
-                "allowVirtualNetworkAccess": true,
-                "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/',variables('vNet2').name)]"
-                }
-            }
-        },
-        {
-            "name": "[concat(variables('vNet2').name,'/peering')]",
-            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-            "apiVersion": "2019-12-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/',variables('vNet1').name)]",
-                "[resourceId('Microsoft.Network/virtualNetworks/',variables('vNet2').name)]"
-            ],
-            "properties": {
-                "allowVirtualNetworkAccess": true,
-                "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/',variables('vNet1').name)]"
-                }
-            }
-        },
-        {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2018-11-01",
-            "name": "[concat(variables('publicIPAddressName'), copyIndex())]",
+            "name": "[variables('publicIPAddressName')]",
             "location": "[resourceGroup().location]",
-            "copy": {
-                "name": "pip-copy",
-                "count": 2
-            },
             "properties": {
                 "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
             }
         },
         {
+            "apiVersion": "2016-03-30",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('gatewayPublicIPName')]",
+            "location": "[resourceGroup().location]",
+            "comments": "This is the public IP for vNet Gateway",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+            }
+        },
+        {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-11-01",
-            "name": "[concat(variables('nicName'), copyIndex())]",
+            "name": "[variables('nicName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses/',concat(variables('publicIpAddressName'), copyIndex()))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/', concat(parameters('scenarioPrefix'),'-Vnet', copyIndex(1)))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses/',variables('publicIpAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
             ],
-            "copy": {
-                "name": "nic-copy",
-                "count": 2
-            },
             "properties": {
                 "ipConfigurations": [
                     {
@@ -170,10 +145,10 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat(parameters('scenarioPrefix'),'-Vnet', copyIndex(1)), 'subnet1')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, 'subnet1')]"
                             },
                             "publicIpAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', concat(variables('publicIpAddressName'), copyIndex()))]"
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
                             }
                         }
                     }
@@ -181,23 +156,55 @@
             }
         },
         {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-10-01",
-            "name": "[concat(variables('vmName'), copyIndex())]",
+            "apiVersion": "2019-12-01",
+            "type": "Microsoft.Network/virtualNetworkGateways",
+            "name": "[concat(variables('vNet').name,'-gw')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces/', concat(variables('nicName'), copyIndex()))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('gatewayPublicIPName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
             ],
-            "copy": {
-                "name": "vmcopy",
-                "count": 2
-            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('gateway1SubnetRef')]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIPName'))]"
+                            }
+                        },
+                        "name": "vNet1GatewayConfig"
+                    }
+                ],
+                "gatewayType": "Vpn",
+                "sku": {
+                    "name": "[parameters('gatewaySku')]",
+                    "tier": "[parameters('gatewaySku')]"
+                },
+                "vpnType": "RouteBased",
+                "enableBgp": true,
+                "bgpSettings": {
+                    "asn": "[variables('vNet').asn]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2018-10-01",
+            "name": "[variables('vmName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+            ],
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_B1s"
                 },
                 "osProfile": {
-                    "computerName": "[concat(variables('vmName'), copyIndex())]",
+                    "computerName": "[variables('vmName')]",
                     "adminUsername": "[parameters('adminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]"
                 },
@@ -218,24 +225,20 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicName'), copyIndex()))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
                         }
                     ]
                 }
             }
         },
         {
-            "name": "[concat('shutdown-computevm-', variables('vmName'), copyIndex())]",
+            "name": "[concat('shutdown-computevm-', variables('vmName'))]",
             "type": "Microsoft.DevTestLab/schedules",
             "apiVersion": "2018-09-15",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/', concat(variables('vmName'), copyIndex()))]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
             ],
-            "copy": {
-                "name": "schedcopy",
-                "count": 2
-            },
             "properties": {
                 "status": "[parameters('autoShutdownStatus')]",
                 "taskType": "ComputeVmShutdownTask",
@@ -243,7 +246,7 @@
                     "time": "[variables('autoShutdown').autoShutdownTime]"
                 },
                 "timeZoneId": "[variables('autoShutdown').autoShutdownTimeZone]",
-                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vmName'), copyIndex()))]",
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]",
                 "notificationSettings": {
                     "status": "[variables('autoShutdown').autoShutdownNotificationStatus]",
                     "notificationLocale": "[variables('autoShutdown').autoShutdownNotificationLocale]",

@@ -28,7 +28,7 @@
             }
         },
         "VMSize": {
-            "defaultValue": "Standard_D2s_v3",
+            "defaultValue": "Standard_A2_v2",
             "type": "string",
             "metadata": {
                 "description": "The size of the Virtual Machine."
@@ -42,13 +42,6 @@
             "type": "string",
             "metadata": {
                 "description": "The type of operating system."
-            }
-        },
-        "kubernetesVersion": {
-            "defaultValue": "1.17.7",
-            "type": "string",
-            "metadata": {
-                "description": "The version of Kubernetes."
             }
         },
         "enableHttpApplicationRouting": {
@@ -105,6 +98,7 @@
             }
         },
         "scenarioPrefix": {
+            "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, 8)]",
             "type": "string",
             "metadata": {
                 "description": "A CIDR notation IP for Docker bridge."
@@ -113,9 +107,8 @@
     },
     "variables": {
         "clusterName": "[concat(parameters('scenarioPrefix'),'-aks-cni')]",
-        "dnsPrefix": "[concat(parameters('scenarioPrefix'),'-aks-cni')]",
         "vNet": {
-            "name": "[concat(parameters('scenarioPrefix'),'Vnet')]",
+            "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
             "addressSpacePrefix": "172.19.0.0/16",
             "subnetName": "subnet1",
             "subnetPrefix": "172.19.10.0/24",
@@ -166,14 +159,13 @@
             "name": "[variables('clusterName')]",
             "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
-            "tags": {},
+            "tags": {
+            },
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
             ],
             "properties": {
-                "kubernetesVersion": "[parameters('kubernetesVersion')]",
                 "enableRBAC": "[parameters('enableRBAC')]",
-                "dnsPrefix": "[variables('dnsPrefix')]",
                 "addonProfiles": {
                     "httpApplicationRouting": {
                         "enabled": "[parameters('enableHttpApplicationRouting')]"
@@ -181,7 +173,7 @@
                 },
                 "agentPoolProfiles": [
                     {
-                        "name": "master",
+                        "name": "agentpool",
                         "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
                         "count": "[parameters('agentCount')]",
                         "vmSize": "[parameters('VMSize')]",
@@ -190,23 +182,6 @@
                         "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vNet').name,variables('vNet').subnetName)]",
                         "maxPods": "[parameters('maxPods')]",
                         "mode": "System",
-                        "type": "VirtualMachineScaleSets",
-                        "enableAutoScaling": true,
-                        "minCount": 1,
-                        "maxCount": 3,
-                        "nodeTaints": [
-                            "role=system:PreferNoSchedule"
-                        ]
-                    },
-                    {
-                        "name": "worker1",
-                        "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
-                        "count": "[parameters('agentCount')]",
-                        "vmSize": "[parameters('VMSize')]",
-                        "osType": "[parameters('osType')]",
-                        "storageProfile": "ManagedDisks",
-                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vNet').name,variables('vNet').subnetName)]",
-                        "maxPods": "[parameters('maxPods')]",
                         "type": "VirtualMachineScaleSets"
                     }
                 ],
@@ -221,7 +196,7 @@
                     "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]",
                     "loadBalancerSku": "Standard"
                 }
-            },            
+            },
             "identity": {
                 "type": "SystemAssigned"
             }
@@ -240,8 +215,10 @@
                 "template": {
                     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "variables": {},
+                    "parameters": {
+                    },
+                    "variables": {
+                    },
                     "resources": [
                         {
                             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
@@ -257,11 +234,5 @@
                 }
             }
         }
-    ],
-    "outputs": {
-        "controlPlaneFQDN": {
-            "type": "string",
-            "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', variables('clusterName'))).fqdn]"
-        }
-    }
+    ]
 }
