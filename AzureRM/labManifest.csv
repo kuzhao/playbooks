@@ -1,0 +1,8 @@
+﻿Index,templateFolder,Description
+0,aks-azurecni,Create a cluster with pods living in a vnet subnet. The cluster takes its identity from a managed identity resource.
+1,vnet-gw-vm,Create a VM within a virtual gateway enabled vnet. You may then go ahead and configure a S2S VPN from anywhere!
+2,vnet-peering-w-vm,Create 2 peered vnets. You will also find an Ubuntu in each vnet respectively. Goodie to have for back-to-back testing.
+3,win-linux,Spin up a win2019 DC and an Ubuntu 18.04 simultaneously in their own subnets within a vnet. Instantly empowers you with dual OS capability! Cost control optimized.
+4,agw-vm,Create a AGW with a VM as its backend in a vnet
+5,servicefabric-win, Create a Service Fabric cluster with Windows container
+6,servicefabric-linux,Create a Service Fabric cluster with Linux container
