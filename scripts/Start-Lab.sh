@@ -54,7 +54,7 @@ else
                   echo "Please az login first."
             else
                   # Prompt user to confirm if the correct sub is selected
-                  echo "Is the above correct subscription?" && read DUMMY_INPUT
+                  echo "Is the above correct subscription? Press Ctrl-C to cancel" && read DUMMY_INPUT
                   LABNAME="lab$RANDOM"
                   az group create -g "rg-$LABNAME" -l $REGION
                   az deployment group create --template-file $SCRIPT_DIR/../AzureRM/$FOLDER/azuredeploy.json -g "rg-$LABNAME"

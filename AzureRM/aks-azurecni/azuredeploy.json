@@ -28,7 +28,7 @@
             }
         },
         "VMSize": {
-            "defaultValue": "Standard_A2_v2",
+            "defaultValue": "Standard_B2s",
             "type": "string",
             "metadata": {
                 "description": "The size of the Virtual Machine."
@@ -165,6 +165,7 @@
                 "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
             ],
             "properties": {
+                "dnsPrefix": "[parameters('scenarioPrefix')]",
                 "enableRBAC": "[parameters('enableRBAC')]",
                 "addonProfiles": {
                     "httpApplicationRouting": {
