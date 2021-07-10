@@ -40,8 +40,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 if [ $# -eq 0 ]; then
       cat $SCRIPT_DIR/../AzureRM/labManifest.csv
 else
-      FOLDER=`cat $SCRIPT_DIR/../AzureRM/labManifest.csv | grep "$1," | awk '{print $2}'`
-      if [ $FOLDER -eq '' ]; then
+      FOLDER=`cat $SCRIPT_DIR/../AzureRM/labManifest.csv | grep "$1," | awk -F ',' '{print $2}'`
+      if [ $FOLDER = '' ]; then
             echo "Illegal lab item index."
       else
             if [ $# -eq 2 ]; then
@@ -50,10 +50,12 @@ else
                   REGION="eastus"
             fi
             az account show
-            if ![ $? -eq 0 ]; then
+            if ! [ $? -eq 0 ]; then
                   echo "Please az login first."
             else
-                  LABNAME = "lab$RANDOM"
+                  # Prompt user to confirm if the correct sub is selected
+                  echo "Is the above correct subscription?" && read DUMMY_INPUT
+                  LABNAME="lab$RANDOM"
                   az group create -g "rg-$LABNAME" -l $REGION
                   az deployment group create --template-file $SCRIPT_DIR/../AzureRM/$FOLDER/azuredeploy.json -g "rg-$labname"
             fi
