@@ -57,7 +57,7 @@ else
                   echo "Is the above correct subscription?" && read DUMMY_INPUT
                   LABNAME="lab$RANDOM"
                   az group create -g "rg-$LABNAME" -l $REGION
-                  az deployment group create --template-file $SCRIPT_DIR/../AzureRM/$FOLDER/azuredeploy.json -g "rg-$labname"
+                  az deployment group create --template-file $SCRIPT_DIR/../AzureRM/$FOLDER/azuredeploy.json -g "rg-$LABNAME"
             fi
       fi
 fi
