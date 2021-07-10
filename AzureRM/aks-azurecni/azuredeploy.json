@@ -188,7 +188,7 @@
                 ],
                 "windowsProfile": {
                     "adminUsername": "sysadmin",
-                    "adminPassword": "Abcd!2345678"
+                    "adminPassword": "Abcd!234567890"
                 },
                 "networkProfile": {
                     "networkPlugin": "[parameters('networkPlugin')]",
