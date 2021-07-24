@@ -2,66 +2,36 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
-    component: ds-disable-ipv6
-  name: ds-disable-ipv6
+    component: ds-disable-daily-upgrade
+  name: disable-daily-upgrade
 spec:
   selector:
     matchLabels:
-      component: ds-disable-ipv6
-      tier: node
+      component: ds-disable-daily-upgrade
   template:
     metadata:
+      name: systemd-patch
       labels:
-        component: ds-disable-ipv6
-        tier: node
+        component: ds-disable-daily-upgrade
     spec:
-      containers:
-      - command:
-        - nsenter
-        - --target
-        - "1"
-        - --mount
-        - --uts
-        - --ipc
-        - --net
-        - --pid
-        - --
-        - sh
-        - -c
-        - |
-          if ip a | grep "inet6"; then
-            echo ipv6 is not disabled
-            if cat /etc/default/grub | grep "GRUB_CMDLINE_LINUX_DEFAULT=" | grep "ipv6.disable=1"; then
-              echo GRUB_CMDLINE_LINUX_DEFAULT is already disabled
-            else
-              echo disabling GRUB_CMDLINE_LINUX_DEFAULT
-              sed -i 's/\bGRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 /g' /etc/default/grub
-            fi
-            if cat /etc/default/grub | grep "GRUB_CMDLINE_LINUX=" | grep "ipv6.disable=1"; then
-              echo GRUB_CMDLINE_LINUX is already disable
-            else
-              echo disabling GRUB_CMDLINE_LINUX
-              sed -i 's/\bGRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="ipv6.disable=1 /g' /etc/default/grub
-            fi
-            update-grub
-            # reboot  
-          else
-            echo ipv6 is already disabled
-          fi
-          while true; do sleep 100000; done
-        image: alpine
-        imagePullPolicy: IfNotPresent
-        name: sysctl-patch
-        resources:
-          requests:
-            cpu: 10m
-        securityContext:
-          privileged: true
-      dnsPolicy: ClusterFirst
+      hostNetwork: true
       hostPID: true
-      tolerations:
-      - effect: NoSchedule
-        operator: Exists
-      restartPolicy: Always
-  updateStrategy:
-    type: RollingUpdate          
+      hostIPC: true
+      containers:
+        - command:
+          - nsenter
+          - --target
+          - "1"
+          - --mount
+          - --uts
+          - --ipc
+          - --net
+          - --
+          - sh
+          - -c
+          - |
+            systemctl status systemd; sleep 1000
+        image: alpine
+        name: systemd-patch
+        securityContext:
+          privileged: true   
