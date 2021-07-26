@@ -48,7 +48,7 @@ Param (
 if ($index -eq -10) {
     Import-Csv "$PSScriptRoot\..\AzureRM\labManifest.csv" | Format-Table -Property Index,Description -Wrap
 } else {
-    $lab_manifest = Import-Csv "$PSScriptRoot\labtemplate\labManifest.csv"
+    $lab_manifest = Import-Csv "$PSScriptRoot\..\AzureRM\labManifest.csv"
     # Index input check
     if (($index -lt 0) -or (($lab_manifest | Measure-Object).Count -lt $index+1)) {
         Write-Output "Illegal lab item index."
