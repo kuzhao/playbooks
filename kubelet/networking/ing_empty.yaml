@@ -1,19 +1,21 @@
-apiVersion: extensions/v1
 kind: Ingress
+apiVersion: networking.k8s.io/v1
 metadata:
-  name: admin-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  name: ingress
+  namespace: default
 spec:
   tls:
-  - hosts:
-    - ingress-57834.switzerlandnorth.cloudapp.azure.com
-    secretName: tls-sample
+    - hosts:
+        - ingress-849323.eastus.cloudapp.azure.com
+      secretName: tls-sample
   rules:
-  - host: ingress-57834.switzerlandnorth.cloudapp.azure.com
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: kubernetes-dashboard
-          servicePort: 443
+    - host: ingress-849323.eastus.cloudapp.azure.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gorest
+                port:
+                  number: 80
