@@ -1,0 +1,355 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "resources": [
+        {
+            "apiVersion": "2018-07-01",
+            "name": "utility-lb-pip",
+            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/publicIPAddresses/utility-lb-pip",
+            "location": "southeastasia",
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            },
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Standard"
+            }
+        },
+        {
+            "apiVersion": "2018-07-01",
+            "name": "labVnet",
+            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/virtualNetworks/labVnet",
+            "type": "Microsoft.Network/virtualNetworks",
+            "location": "southeastasia",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "172.19.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "jumpbox",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/virtualNetworks/labVnet/subnets/jumpbox",
+                        "properties": {
+                            "addressPrefix": "172.19.31.224/28",
+                            "serviceEndpoints": [],
+                            "delegations": []
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "apiVersion": "2018-07-01",
+            "name": "utility-lb",
+            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb",
+            "type": "Microsoft.Network/loadBalancers",
+            "location": "southeastasia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', 'net-linux')]",
+                "[resourceId('Microsoft.Compute/virtualMachines', 'net')]"
+            ],
+            "tags": {},
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "pub",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/frontendIPConfigurations/pub",
+                        "type": "Microsoft.Network/loadBalancers/frontendIPConfigurations",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/publicIPAddresses/utility-lb-pip"
+                            },
+                            "inboundNatRules": [
+                                {
+                                    "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/inboundNatRules/rdp"
+                                },
+                                {
+                                    "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/inboundNatRules/ssh"
+                                }
+                            ],
+                            "outboundRules": [
+                                {
+                                    "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/outboundRules/default_out"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "for_outbound",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/backendAddressPools/for_outbound",
+                        "properties": {
+                            "outboundRules": [
+                                {
+                                    "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/outboundRules/default_out"
+                                }
+                            ],
+                            "backendIPConfigurations": [
+                                {
+                                    "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net448/ipConfigurations/ipconfig1"
+                                },
+                                {
+                                    "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net-linux113/ipConfigurations/ipconfig1"
+                                }
+                            ]
+                        },
+                        "type": "Microsoft.Network/loadBalancers/backendAddressPools"
+                    }
+                ],
+                "loadBalancingRules": [],
+                "probes": [],
+                "inboundNatRules": [
+                    {
+                        "name": "rdp",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/inboundNatRules/rdp",
+                        "type": "Microsoft.Network/loadBalancers/inboundNatRules",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/frontendIPConfigurations/pub"
+                            },
+                            "frontendPort": 3389,
+                            "backendPort": 3389,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 10,
+                            "protocol": "Tcp",
+                            "enableDestinationServiceEndpoint": false,
+                            "enableTcpReset": false,
+                            "backendIPConfiguration": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net448/ipConfigurations/ipconfig1"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ssh",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/inboundNatRules/ssh",
+                        "type": "Microsoft.Network/loadBalancers/inboundNatRules",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/frontendIPConfigurations/pub"
+                            },
+                            "frontendPort": 22,
+                            "backendPort": 22,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "Tcp",
+                            "enableDestinationServiceEndpoint": false,
+                            "enableTcpReset": false,
+                            "backendIPConfiguration": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net-linux113/ipConfigurations/ipconfig1"
+                            }
+                        }
+                    }
+                ],
+                "outboundRules": [
+                    {
+                        "name": "default_out",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/outboundRules/default_out",
+                        "type": "Microsoft.Network/loadBalancers/outboundRules",
+                        "properties": {
+                            "allocatedOutboundPorts": 0,
+                            "protocol": "All",
+                            "enableTcpReset": true,
+                            "idleTimeoutInMinutes": 4,
+                            "backendAddressPool": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/backendAddressPools/for_outbound"
+                            },
+                            "frontendIPConfigurations": [
+                                {
+                                    "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/loadBalancers/utility-lb/frontendIPConfigurations/pub"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "inboundNatPools": []
+            },
+            "sku": {
+                "name": "Standard"
+            }
+        },
+        {
+            "apiVersion":"2018-07-01",
+            "name": "net-linux113",
+            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net-linux113",
+            "location": "southeastasia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'labVnet')]"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net-linux113/ipConfigurations/ipconfig1",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/virtualNetworks/labVnet/subnets/jumpbox"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": [],
+                    "appliedDnsServers": []
+                },
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false,
+                "primary": true
+            },
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion":"2018-07-01",
+            "name": "net448",
+            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net448",
+            "location": "southeastasia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'labVnet')]"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net448/ipConfigurations/ipconfig1",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/virtualNetworks/labVnet/subnets/jumpbox"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": [],
+                    "appliedDnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "primary": true
+            },
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "2019-03-01",
+            "name": "net-linux",
+            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Compute/virtualMachines/net-linux",
+            "type": "Microsoft.Compute/virtualMachines",
+            "location": "southeastasia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', 'net-linux113')]"
+            ],
+            "properties": {
+                "priority": "Spot",
+                "hardwareProfile": {
+                    "vmSize": "Standard_F4s_v2"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "0001-com-ubuntu-server-focal",
+                        "sku": "20_04-lts",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS"
+                        }
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "net-linux",
+                    "adminUsername": "sysadmin",
+                    "adminPassword":"Abcd!2345678",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "provisionVMAgent": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net-linux113"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-03-01",
+            "name": "net",
+            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Compute/virtualMachines/net",
+            "type": "Microsoft.Compute/virtualMachines",
+            "location": "southeastasia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', 'net448')]"
+            ],
+            "properties": {
+                "priority": "Spot",
+                "hardwareProfile": {
+                    "vmSize": "Standard_E4s_v4"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsDesktop",
+                        "offer": "Windows-10",
+                        "sku": "20h2-pro",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS"
+                        }
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "net",
+                    "adminUsername": "sysadmin",                    
+                    "adminPassword":"Abcd!2345678",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "/subscriptions/9fc4a0d2-8c0c-42c0-bbcf-ad12cb4ce3e1/resourceGroups/rg-southeastasia/providers/Microsoft.Network/networkInterfaces/net448"
+                        }
+                    ]
+                },
+                "licenseType": "Windows_Client"
+            }
+        }
+    ]
+}
