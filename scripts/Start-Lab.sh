@@ -50,7 +50,7 @@ else
                   REGION="eastus"
             fi
             az account show
-            if ! [ $? -eq 0 ]; then
+            if [ ! $? -eq 0 ]; then
                   echo "Please az login first."
             else
                   # Prompt user to confirm if the correct sub is selected
