@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: ds-set-pidmax
+  name: set-pidmax
+spec:
+  selector:
+    matchLabels:
+      component: ds-set-pidmax
+  template:
+    metadata:
+      labels:
+        component: ds-set-pidmax
+    spec:
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          echo "250000" > /proc/sys/kernel/pid_max
+          while true; do sleep 100000; done
+        image: alpine
+        name: sysctl-patch
+        securityContext:
+          privileged: true

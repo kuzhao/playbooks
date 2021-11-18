@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: ds-disable-daily-upgrade
+  name: disable-daily-upgrade
+spec:
+  selector:
+    matchLabels:
+      component: ds-disable-daily-upgrade
+  template:
+    metadata:
+      labels:
+        component: ds-disable-daily-upgrade
+    spec:
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          systemctl disable apt-daily-upgrade.timer && systemctl stop apt-daily-upgrade.timer
+          while true; do sleep 100000; done
+        image: alpine
+        name: systemd-patch
+        securityContext:
+          privileged: true
