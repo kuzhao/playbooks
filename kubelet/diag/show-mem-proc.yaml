@@ -30,7 +30,7 @@ spec:
         - sh
         - -c
         - |
-          while true; do ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 2 -nr | head -10 > /tmp/top-mem-$(date +%F_%T); sleep 300; done
+          while true; do ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 2 -nr | head -10 > /tmp/top-pcpu-$(date +%F_%T); sleep 300; done
         image: alpine
         name: utility
         securityContext:
