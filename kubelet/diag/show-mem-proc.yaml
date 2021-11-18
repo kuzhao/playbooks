@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: ds-check-mem
+  name: check-mem
+spec:
+  selector:
+    matchLabels:
+      component: ds-check-mem
+  template:
+    metadata:
+      labels:
+        component: ds-check-mem
+    spec:
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          while true; do ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 1 -nr | head -5 > /tmp/top-mem-$(date +%F_%T); sleep 300; done
+        image: alpine
+        name: utility
+        securityContext:
+          privileged: true
