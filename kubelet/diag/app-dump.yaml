@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: app-dump
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: node-dump
+  template:
+    metadata:      
+      labels:
+        app: node-dump
+    spec:
+      containers:
+      - name: pktdump
+        image: 'ubuntu:latest'
+        command:
+          - nsenter
+          - --target
+          - "1"
+          - --mount
+          - --uts
+          - --ipc
+          - --net
+          - --
+          - bash
+          - -c
+          - |
+            NAME=$(cat /etc/hostname);echo /tmp/$NAME.pcap;tcpdump -C 100 -G 1200 -W 4 -i any -w /tmp/$NAME.pcap host 52.179.6.240;
+            echo 'done';sleep infinity
+        securityContext:
+          privileged: true
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
