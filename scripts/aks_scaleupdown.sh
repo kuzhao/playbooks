@@ -79,5 +79,6 @@ fi
 # Loop for repro
 while true; do
     ScaleUpDown
+    echo 'Sleep for 3mins before the next round...'
     sleep 180
 done
