@@ -62,6 +62,10 @@ if ($index -eq -10) {
         "The az executable does not exist. Double check AzCli installation." 
         exit
     }
+    # Exit if not login
+    if (!(0 -eq $LASTEXITCODE)) {
+        exit
+    }
     Read-Host -Prompt 'Is the above the right sub? Ctrl-C to halt, or press ENTER to begin deployments.'
 
     # Execute corresponding deployments
