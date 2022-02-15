@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dump-procio
+spec:
+  selector:
+    matchLabels:
+      component: ds-dump-procio
+  template:
+    metadata:
+      labels:
+        component: ds-dump-procio
+    spec:
+      hostPID: true
+      hostNetwork: true
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
+          type: ''
+      - name: azurefile
+        persistentVolumeClaim:
+          claimName: azurefile
+      containers:
+      - command:
+        - sh
+        - -c
+        - |
+          apt-get update && apt-get install -y iotop;chroot /host iotop -bot -d 10 > /data/iotop-$(hostname).log
+        image: ubuntu
+        name: procio
+        volumeMounts:
+        - name: host-root
+          mountPath: /host
+        - name: azurefile
+          mountPath: /data
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN", "SYS_TIME"]
