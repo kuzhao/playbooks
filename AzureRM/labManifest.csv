@@ -6,3 +6,4 @@
 4,agw-vm,Create a AGW with a VM as its backend in a vnet
 5,servicefabric-win, Create a Service Fabric cluster with Windows container
 6,servicefabric-linux,Create a Service Fabric cluster with Linux container
+
