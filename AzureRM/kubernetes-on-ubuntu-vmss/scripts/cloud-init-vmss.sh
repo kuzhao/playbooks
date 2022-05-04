@@ -5,7 +5,7 @@
 # ---------------------------------
 
 KUBEADM_TOKEN='8f07c4.2fa8f9e48b6d4036'
-KUBE_VERSION='1.21.6' # specify version of kubeadm, kubelet and kubectl
+KUBE_VERSION='1.21.11-00' # specify version of kubeadm, kubelet and kubectl
 
 # setup params given to sh script
 CLIENT_ID=$1
