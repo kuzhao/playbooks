@@ -74,7 +74,7 @@ done
 
 # Manuever starts
 ## remove the 2nd Ready node
-TGT_NODE=$(kubectl get node | tail -n +2 | head -n 1 | tr -s ' ' | cut -d ' ' -f1)
+TGT_NODE=$(kubectl get node | tail -n +3 | head -n 1 | tr -s ' ' | cut -d ' ' -f1)
 if [[ $TGT_NODE =~ [a-zA-Z0-9-]+vmss ]];then
     VMSS=${BASH_REMATCH[0]};
 else
