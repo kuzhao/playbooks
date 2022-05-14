@@ -2,153 +2,33 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "siteName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of azure web app"
-            }
-        },
         "administratorLogin": {
             "type": "string",
-            "minLength": 1,
+            "defaultValue": "pgadmin",
             "metadata": {
                 "description": "Database administrator login name"
             }
         },
         "administratorLoginPassword": {
             "type": "securestring",
-            "minLength": 8,
-            "maxLength": 128,
+            "defaultValue": "Abcd!2345678",
             "metadata": {
                 "description": "Database administrator password"
             }
         },
-        "databaseSkucapacity": {
-            "type": "int",
-            "allowedValues": [
-                2,
-                4,
-                8,
-                16,
-                32
-            ],
-            "defaultValue": 2,
-            "metadata": {
-                "description": "Azure database for PostgreSQL vCores capacity"
-            }
-        },
-        "databaseSkuName": {
-            "type": "string",
-            "allowedValues": [
-                "GP_Gen5_2",
-                "GP_Gen5_4",
-                "GP_Gen5_8",
-                "GP_Gen5_16",
-                "GP_Gen5_32",
-                "MO_Gen5_2",
-                "MO_Gen5_4",
-                "MO_Gen5_8",
-                "MO_Gen5_16",
-                "B_Gen5_1",
-                "B_Gen5_2"
-            ],
-            "defaultValue": "GP_Gen5_2",
-            "metadata": {
-                "description": "Azure database for PostgreSQL sku name : "
-            }
-        },
-        "databaseSkuSizeMB": {
-            "type": "int",
-            "allowedValues": [
-                102400,
-                51200
-            ],
-            "defaultValue": 51200,
-            "metadata": {
-                "description": "Azure database for PostgreSQL Sku Size "
-            }
-        },
-        "databaseSkuTier": {
-            "type": "string",
-            "allowedValues": [
-                "GeneralPurpose",
-                "MemoryOptimized",
-                "Basic"
-            ],
-            "defaultValue": "GeneralPurpose",
-            "metadata": {
-                "description": "Azure database for PostgreSQL pricing tier"
-            }
-        },
-        "postgresqlVersion": {
-            "type": "string",
-            "allowedValues": [
-                "9.5",
-                "9.6"
-            ],
-            "defaultValue": "9.6",
-            "metadata": {
-                "description": "PostgreSQL version"
-            }
-        },
-        "addressPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.0.0/16",
-            "metadata": {
-                "description": "Address prefix for the Virtual Network"
-            }
-        },
-        "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.0.0/28",
-            "metadata": {
-                "description": "Subnet prefix"
-            }
-        },
-        "applicationGatewaySize": {
-            "type": "string",
-            "allowedValues": [
-                "Standard_Small",
-                "Standard_Medium",
-                "Standard_Large"
-            ],
-            "defaultValue": "Standard_Medium",
-            "metadata": {
-                "description": "application gateway size"
-            }
-        },
-        "capacity": {
-            "type": "int",
-            "defaultValue": 2,
-            "metadata": {
-                "description": "Number of instances"
-            }
-        },
-        "probeEnabled": {
-            "type": "bool",
-            "defaultValue": true,
-            "metadata": {
-                "description": "Probe Enabled"
-            }
-        },
-        "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]",
-            "metadata": {
-                "description": "Location for all resources."
-            }
-        },
         "scenarioPrefix": {
+            "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, 8)]",
             "type": "string",
             "metadata": {
-                "description": "A CIDR notation IP for Docker bridge."
+                "description": "A notation of uuid from the current RG for this deployment."
             }
         }
     },
     "variables": {
-        "databaseName": "[concat(parameters('siteName'), 'database')]",
-        "serverName": "[concat(parameters('siteName'), 'pgserver')]",
-        "hostingPlanName": "[concat(parameters('siteName'), 'serviceplan')]",
+        "siteName": "[concat(parameters('scenarioPrefix'),'-website')]",
+        "databaseName": "[concat(parameters('scenarioPrefix'), 'database')]",
+        "serverName": "[concat(parameters('scenarioPrefix'), 'pgserver')]",
+        "hostingPlanName": "[concat(parameters('scenarioPrefix'), 'serviceplan')]",
         "applicationGatewayName": "applicationGateway1",
         "publicIPAddressName": "publicIp1",
         "vNet": {
@@ -157,8 +37,11 @@
             "subnetName": "appGatewaySubnet",
             "subnetPrefix": "172.19.10.0/24"
         },
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, variables('vNet').subnetName)]",
-        "publicIPRef": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]",
+        "databaseSkuName":"B_Gen5_2",
+        "databaseSkuSizeMB": 51200,
+        "databaseSkuTier": "Basic",
+        "postgresqlVersion": "9.6",
+        "databaseSkucapacity": 2,
         "applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways',variables('applicationGatewayName'))]"
     },
     "resources": [
@@ -166,7 +49,7 @@
             "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('publicIPAddressName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
             }
@@ -175,44 +58,44 @@
             "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/virtualNetworks",
             "name": "[variables('vNet').name]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[parameters('addressPrefix')]"
+                        "[variables('vNet').addressSpacePrefix]"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "[variables('vNet').subnetName]",
                         "properties": {
-                            "addressPrefix": "[parameters('subnetPrefix')]"
+                            "addressPrefix": "[variables('vNet').subnetPrefix]"
                         }
                     }
                 ]
             }
         },
         {
-            "apiVersion": "2017-06-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('applicationGatewayName')]",
             "type": "Microsoft.Network/applicationGateways",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vNet').name)]",
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
             ],
             "properties": {
                 "sku": {
-                    "name": "[parameters('applicationGatewaySize')]",
-                    "tier": "Standard",
-                    "capacity": "[parameters('capacity')]"
+                    "name": "Standard_v2",
+                    "tier": "Standard_v2",
+                    "capacity": 1
                 },
                 "gatewayIPConfigurations": [
                     {
                         "name": "appGatewayIpConfig",
                         "properties": {
                             "subnet": {
-                                "id": "[variables('subnetRef')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, variables('vNet').subnetName)]"
                             }
                         }
                     }
@@ -222,7 +105,7 @@
                         "name": "appGatewayFrontendIP",
                         "properties": {
                             "PublicIPAddress": {
-                                "id": "[variables('publicIPRef')]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
                             }
                         }
                     }
@@ -241,10 +124,10 @@
                         "properties": {
                             "BackendAddresses": [
                                 {
-                                    "IpAddress": "[concat(parameters('siteName'),'1.azurewebsites.net')]"
+                                    "IpAddress": "[concat(variables('siteName'),'1.azurewebsites.net')]"
                                 },
                                 {
-                                    "IpAddress": "[concat(parameters('siteName'),'2.azurewebsites.net')]"
+                                    "IpAddress": "[concat(variables('siteName'),'2.azurewebsites.net')]"
                                 }
                             ]
                         }
@@ -258,7 +141,7 @@
                             "Protocol": "Http",
                             "CookieBasedAffinity": "Disabled",
                             "PickHostNameFromBackendAddress": true,
-                            "ProbeEnabled": "[parameters('probeEnabled')]",
+                            "ProbeEnabled": true,
                             "Probe": {
                                 "id": "[concat(variables('applicationGatewayID'), '/probes/Probe1')]"
                             }
@@ -315,7 +198,7 @@
         },
         {
             "type": "Microsoft.Web/sites",
-            "name": "[concat(parameters('siteName'), copyIndex())]",
+            "name": "[concat(variables('siteName'), copyIndex())]",
             "dependsOn": [
                 "[variables('hostingPlanName')]"
             ],
@@ -334,18 +217,18 @@
                         }
                     ]
                 },
-                "name": "[concat(parameters('siteName'), copyIndex())]",
+                "name": "[concat(variables('siteName'), copyIndex())]",
                 "serverFarmId": "[variables('hostingPlanName')]",
                 "hostingEnvironment": ""
             },
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]"
+            "apiVersion": "2021-03-01",
+            "location": "[resourceGroup().location]"
         },        
         {
             "apiVersion": "2016-09-01",
             "name": "[variables('hostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "name": "[variables('hostingPlanName')]",
                 "workerSizeId": "1",
@@ -361,19 +244,19 @@
         {
             "apiVersion": "2017-12-01",
             "kind": "",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "name": "[variables('serverName')]",
             "properties": {
-                "version": "[parameters('postgresqlVersion')]",
+                "version": "[variables('postgresqlVersion')]",
                 "administratorLogin": "[parameters('administratorLogin')]",
                 "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-                "storageMB": "[parameters('databaseSkuSizeMB')]"
+                "storageMB": "[variables('databaseSkuSizeMB')]"
             },
             "sku": {
-                "name": "[parameters('databaseSkuName')]",
-                "tier": "[parameters('databaseSkuTier')]",
-                "capacity": "[parameters('databaseSkucapacity')]",
-                "size": "[parameters('databaseSkuSizeMB')]",
+                "name": "[variables('databaseSkuName')]",
+                "tier": "[variables('databaseSkuTier')]",
+                "capacity": "[variables('databaseSkucapacity')]",
+                "size": "[variables('databaseSkuSizeMB')]",
                 "family": "Gen5"
             },
             "type": "Microsoft.DBforPostgreSQL/servers",
@@ -384,7 +267,7 @@
                     "dependsOn": [
                         "[concat('Microsoft.DBforPostgreSQL/servers/', variables('serverName'))]"
                     ],
-                    "location": "[parameters('location')]",
+                    "location": "[resourceGroup().location]",
                     "name": "[concat(variables('serverName'),'firewall')]",
                     "properties": {
                         "startIpAddress": "0.0.0.0",

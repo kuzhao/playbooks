@@ -18,10 +18,8 @@
         },
         "ubuntuOSVersion": {
             "type": "string",
-            "defaultValue": "16.04.0-LTS",
+            "defaultValue": "18.04-LTS",
             "allowedValues": [
-                "12.04.5-LTS",
-                "14.04.5-LTS",
                 "16.04.0-LTS",
                 "18.04-LTS"
             ],
@@ -37,7 +35,7 @@
             "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, 8)]",
             "type": "string",
             "metadata": {
-                "description": "A CIDR notation IP for Docker bridge."
+                "description": "A notation of uuid from the current RG for this deployment."
             }
         }
     },
@@ -46,13 +44,14 @@
         "imageOffer": "UbuntuServer",
         "nicName": "myVMNic",
         "publicIPAddressName": "myPublicIP",
+        "publicIPAddressType": "Static",
         "vmName": "[concat(parameters('scenarioPrefix'),'-VM')]",
         "vNet": {
             "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
-            "addressSpacePrefix": "65.6.0.0/16",
+            "addressSpacePrefix": "172.19.0.0/16",
             "subnetName": "subnet1",
-            "subnetPrefix": "65.6.27.0/24",            
-            "agwSubnetPrefix": "65.6.200.224/27"
+            "subnetPrefix": "172.19.10.0/24",            
+            "agwSubnetPrefix": "172.19.255.0/28"
         },
         "autoShutdown": {
             "autoShutdownTime": "19:00",
@@ -61,9 +60,6 @@
             "autoShutdownNotificationLocale": "en"
         },
         "applicationGatewayName": "applicationGateway1",
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, variables('vNet').subnetName)]",
-        "gateway1SubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks',variables('vNet').name),'/subnets/','agwSubnet')]",
-        "publicIPRef": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]",
         "applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways',variables('applicationGatewayName'))]"
     },
     "resources": [
@@ -103,7 +99,7 @@
             },
             "location": "[resourceGroup().location]",
             "properties": {
-                "publicIPAllocationMethod": "Static"
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
             }
         },
         {
@@ -122,7 +118,7 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[variables('subnetRef')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, variables('vNet').subnetName)]"
                             }
                         }
                     }
@@ -212,7 +208,7 @@
                         "name": "appGatewayIpConfig",
                         "properties": {
                             "subnet": {
-                                "id": "[variables('gateway1SubnetRef')]"
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks',variables('vNet').name),'/subnets/','agwSubnet')]"
                             }
                         }
                     }
@@ -222,7 +218,7 @@
                         "name": "appGatewayFrontendIP",
                         "properties": {
                             "PublicIPAddress": {
-                                "id": "[variables('publicIPRef')]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
                             }
                         }
                     }

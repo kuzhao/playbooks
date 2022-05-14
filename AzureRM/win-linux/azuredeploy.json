@@ -31,7 +31,7 @@
       "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, 8)]",
       "type": "string",
       "metadata": {
-        "description": "A CIDR notation IP for Docker bridge."
+        "description": "A notation of uuid from the current RG for this deployment."
       }
     }
   },
@@ -59,10 +59,8 @@
     "vNet": {
       "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
       "addressSpacePrefix": "172.19.0.0/16",
-      "subnetName": "subnet0",
-      "subnetPrefix": "172.19.10.0/24",
-      "subnet2Name": "subnet1",
-      "subnet2Prefix": "172.19.17.0/24"
+      "subnetName": "subnet1",
+      "subnetPrefix": "172.19.10.0/24"
     },
     "autoShutdown": {
       "autoShutdownTime": "19:00",
@@ -101,12 +99,6 @@
             "name": "[variables('vNet').subnetName]",
             "properties": {
               "addressPrefix": "[variables('vNet').subnetPrefix]"
-            }
-          },
-          {
-            "name": "[variables('vNet').subnet2Name]",
-            "properties": {
-              "addressPrefix": "[variables('vNet').subnet2Prefix]"
             }
           }
         ]
