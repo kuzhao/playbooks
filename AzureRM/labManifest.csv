@@ -7,3 +7,4 @@
 5,servicefabric-win,Create a Service Fabric cluster with Windows container
 6,servicefabric-linux,Create a Service Fabric cluster with Linux container
 7,agw-webapps,Create behind an application gateway two public app servicesthat connect to the same managed PgSQL
+8,aks-private,Create a basic private cluster 

@@ -1,0 +1,149 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "osDiskSizeGB": {
+            "defaultValue": 0,
+            "minValue": 0,
+            "maxValue": 1023,
+            "type": "int",
+            "metadata": {
+                "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+            }
+        },
+        "scenarioPrefix": {
+            "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, 8)]",
+            "type": "string",
+            "metadata": {
+                "description": "A notation of uuid from the current RG for this deployment."
+            }
+        }
+    },
+    "variables": {
+        "clusterName": "[concat(parameters('scenarioPrefix'),'-aks-cni')]",
+        "vNet": {
+            "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
+            "addressSpacePrefix": "172.19.0.0/16",
+            "subnetName": "subnet1",
+            "subnetPrefix": "172.19.10.0/24"
+        },
+        "serviceCidr": "10.0.0.0/16",
+        "dnsServiceIP": "10.0.0.10",
+        "dockerBridgeCidr": "172.17.0.1/16",
+        "networkPlugin": "azure",
+        "maxPods": 30,
+        "enableRBAC": true,
+        "VMSize": "Standard_B2s",
+        "osType": "Linux",
+        "agentCount": 1,
+        "enableHttpApplicationRouting": false
+    },
+    "resources": [
+        {
+            "apiVersion": "2016-03-30",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('vNet').name]",
+            "location": "[resourceGroup().location]",
+            "comments": "This is the first vNet",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('vNet').addressSpacePrefix]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('vNet').subnetName]",
+                        "properties": {
+                            "addressPrefix": "[variables('vNet').subnetPrefix]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "name": "[variables('clusterName')]",
+            "apiVersion": "2020-03-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
+            ],
+            "properties": {
+                "dnsPrefix": "[parameters('scenarioPrefix')]",
+                "enableRBAC": "[variables('enableRBAC')]",
+                "addonProfiles": {
+                    "httpApplicationRouting": {
+                        "enabled": "[variables('enableHttpApplicationRouting')]"
+                    }
+                },
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "count": "[variables('agentCount')]",
+                        "vmSize": "[variables('VMSize')]",
+                        "osType": "[variables('osType')]",
+                        "storageProfile": "ManagedDisks",
+                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vNet').name,variables('vNet').subnetName)]",
+                        "maxPods": "[variables('maxPods')]",
+                        "mode": "System",
+                        "type": "VirtualMachineScaleSets"
+                    }
+                ],
+                "windowsProfile": {
+                    "adminUsername": "sysadmin",
+                    "adminPassword": "Abcd!234567890"
+                },
+                "networkProfile": {
+                    "networkPlugin": "[variables('networkPlugin')]",
+                    "serviceCidr": "[variables('serviceCidr')]",
+                    "dnsServiceIP": "[variables('dnsServiceIP')]",
+                    "dockerBridgeCidr": "[variables('dockerBridgeCidr')]",
+                    "loadBalancerSku": "Standard"
+                },
+                "apiServerAccessProfile": {
+                    "enablePrivateCluster": true
+                }
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "ClusterSubnetRoleAssignmentDeployment",
+            "apiVersion": "2017-05-10",
+            "subscriptionId": "[subscription().subscriptionId]",
+            "resourceGroup": "[resourceGroup().name]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                    },
+                    "variables": {
+                    },
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
+                            "apiVersion": "2017-05-01",
+                            "name": "[concat(variables('vNet').name,'/', variables('vNet').subnetName,'/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
+                            "properties": {
+                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                                "principalId": "[reference(variables('clusterName')).identityProfile.kubeletidentity.objectId]",
+                                "scope": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vNet').name, '/subnets/', variables('vNet').subnetName)]"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

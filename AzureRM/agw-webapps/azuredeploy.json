@@ -31,6 +31,7 @@
         "hostingPlanName": "[concat(parameters('scenarioPrefix'), 'serviceplan')]",
         "applicationGatewayName": "applicationGateway1",
         "publicIPAddressName": "publicIp1",
+        "publicIPAddressType": "Static",
         "vNet": {
             "name": "[concat(parameters('scenarioPrefix'),'Vnet')]",
             "addressSpacePrefix": "172.19.0.0/16",
@@ -49,9 +50,12 @@
             "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('publicIPAddressName')]",
+            "sku": {
+                "name": "Standard"
+            },
             "location": "[resourceGroup().location]",
             "properties": {
-                "publicIPAllocationMethod": "Dynamic"
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
             }
         },
         {
