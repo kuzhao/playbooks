@@ -5,6 +5,6 @@ services:
   - docker
 
 script:
-  - docker build -t blaze001/start-azurelab .
+  - docker build -t blaze001/start-azurelab:$TRAVIS_COMMIT .
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker push blaze001/start-azurelab
+  - docker push blaze001/start-azurelab:$TRAVIS_COMMIT
