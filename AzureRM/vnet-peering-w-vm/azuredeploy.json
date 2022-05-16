@@ -48,16 +48,16 @@
         "vmName": "[concat(parameters('scenarioPrefix'),'-VM')]",
         "vNet1": {
             "name": "[concat(parameters('scenarioPrefix'),'-Vnet1')]",
-            "addressSpacePrefix": "172.19.0.0/16",
+            "addressSpacePrefix": "172.19.1.0/28",
             "subnetName": "subnet1",
-            "subnetPrefix": "172.19.10.0/24",
+            "subnetPrefix": "172.19.1.0/29",
             "connectionName": "vNet1-to-vNet2"
         },
         "vNet2": {
             "name": "[concat(parameters('scenarioPrefix'),'-Vnet2')]",
-            "addressSpacePrefix": "192.168.30.0/24",
+            "addressSpacePrefix": "172.19.1.16/28",
             "subnetName": "subnet1",
-            "subnetPrefix": "192.168.30.0/28",
+            "subnetPrefix": "172.19.1.16/29",
             "connectionName": "vNet2-to-vNet1"
         },
         "autoShutdown": {

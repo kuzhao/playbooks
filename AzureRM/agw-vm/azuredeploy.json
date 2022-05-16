@@ -48,10 +48,10 @@
         "vmName": "[concat(parameters('scenarioPrefix'),'-VM')]",
         "vNet": {
             "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
-            "addressSpacePrefix": "172.19.0.0/16",
+            "addressSpacePrefix": "172.19.1.0/27",
             "subnetName": "subnet1",
-            "subnetPrefix": "172.19.10.0/24",            
-            "agwSubnetPrefix": "172.19.255.0/28"
+            "subnetPrefix": "172.19.1.0/28",            
+            "agwSubnetPrefix": "172.19.1.16/28"
         },
         "autoShutdown": {
             "autoShutdownTime": "19:00",

@@ -66,10 +66,10 @@
         "vmName": "[concat(parameters('scenarioPrefix'),'-VM')]",
         "vNet": {
             "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
-            "addressSpacePrefix": "172.19.0.0/16",
+            "addressSpacePrefix": "172.19.1.0/28",
             "subnetName": "subnet1",
-            "subnetPrefix": "172.19.10.0/24",
-            "gatewaySubnetPrefix": "172.19.255.0/28",
+            "subnetPrefix": "172.19.1.0/29",
+            "gatewaySubnetPrefix": "172.19.1.8/29",
             "asn": 65010
         },
         "gateway1SubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks',variables('vNet').name),'/subnets/','GatewaySubnet')]",

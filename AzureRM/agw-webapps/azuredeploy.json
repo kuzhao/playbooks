@@ -34,9 +34,9 @@
         "publicIPAddressType": "Static",
         "vNet": {
             "name": "[concat(parameters('scenarioPrefix'),'Vnet')]",
-            "addressSpacePrefix": "172.19.0.0/16",
+            "addressSpacePrefix": "172.19.1.0/27",
             "subnetName": "appGatewaySubnet",
-            "subnetPrefix": "172.19.10.0/24"
+            "subnetPrefix": "172.19.1.16/28"
         },
         "databaseSkuName":"B_Gen5_2",
         "databaseSkuSizeMB": 51200,

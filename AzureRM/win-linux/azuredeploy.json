@@ -58,9 +58,9 @@
     "nicName": "[concat(variables('vmName'),'Nic')]",
     "vNet": {
       "name": "[concat(parameters('scenarioPrefix'),'-Vnet')]",
-      "addressSpacePrefix": "172.19.0.0/16",
+      "addressSpacePrefix": "172.19.31.224/27",
       "subnetName": "subnet1",
-      "subnetPrefix": "172.19.10.0/24"
+      "subnetPrefix": "172.19.31.224/28"
     },
     "autoShutdown": {
       "autoShutdownTime": "19:00",
