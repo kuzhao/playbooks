@@ -19,13 +19,25 @@
 		"kubeVer": {
 			"type": "string",
 			"defaultValue": "1.21.11-00",
+			"allowedValues": [
+                "1.21.11-00",
+                "1.22.9-00",
+                "1.23.6-00",
+				"1.24.0-00"
+            ],
 			"metadata": {
 				"description": "The name of your VM master node."
 			}
 		},
 		"casVer": {
 			"type": "string",
-			"defaultValue": "v1.21.2",
+			"defaultValue": "1.21.0",
+			"allowedValues": [
+                "1.21.0",
+                "1.22.2",
+                "1.23.0",
+				"1.24.0"
+            ],
 			"metadata": {
 				"description": "The name of your VM master node."
 			}

@@ -213,7 +213,7 @@ spec:
       nodeSelector:
         node-role.kubernetes.io/master: ""
       containers:
-        - image: k8s.gcr.io/cluster-autoscaler:${KUBE_CA_VERSION}
+        - image: bitnami/cluster-autoscaler:${KUBE_CA_VERSION}
           imagePullPolicy: Always
           name: cluster-autoscaler
           resources:
