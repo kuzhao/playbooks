@@ -5,8 +5,6 @@
 # ---------------------------------
 
 KUBEADM_TOKEN='8f07c4.2fa8f9e48b6d4036'
-KUBE_VERSION='1.21.11-00' # specify version of kubeadm, kubelet and kubectl
-KUBE_CA_VERSION='v1.21.2' # specify version of kubernetes cluster-autoscaler
 
 # setup params given to sh script
 CLIENT_ID=$1
@@ -14,12 +12,14 @@ CLIENT_SECRET=$2
 RESOURCE_GROUP=$3
 SUB=$4
 TENANT=$5
+KUBE_VERSION=$6
+KUBE_CA_VERSION=$7
 
 export DEBIAN_FRONTEND=noninteractive
 
 installDeps() {
     # update and upgrade packages
-    apt-get update && apt-get upgrade -y
+    apt-get update && sleep 10
 
     # install docker
     apt-get install -y docker.io

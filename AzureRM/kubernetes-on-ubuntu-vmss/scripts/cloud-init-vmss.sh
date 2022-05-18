@@ -5,7 +5,6 @@
 # ---------------------------------
 
 KUBEADM_TOKEN='8f07c4.2fa8f9e48b6d4036'
-KUBE_VERSION='1.21.11-00' # specify version of kubeadm, kubelet and kubectl
 
 # setup params given to sh script
 CLIENT_ID=$1
@@ -16,13 +15,14 @@ TENANT=$5
 RG_LOCATION=$6
 SUBNET_NAME=$7
 VNET_NAME=$8
+KUBE_VERSION=$9
 
 export DEBIAN_FRONTEND=noninteractive
 export HOME=/root
 
 installDeps() {
     # update and upgrade packages
-    apt-get update && apt-get upgrade -y
+    apt-get update && sleep 10
 
     # install docker
     apt-get install -y docker.io
