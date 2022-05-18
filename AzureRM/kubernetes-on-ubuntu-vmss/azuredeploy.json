@@ -283,7 +283,7 @@
 				"typeHandlerVersion": "2.0",
 				"autoUpgradeMinorVersion": true,
 				"protectedSettings": {
-					"commandToExecute": "[concat('bash ', variables('masterScriptFileName'), ' ', parameters('spClientId'), ' ', parameters('spClientSecret'), ' ', resourceGroup().name, ' ', variables('subscriptionId'), ' ', variables('tenantId'), parameters('kubeVer'), parameters('casVer'))]",
+					"commandToExecute": "[concat('bash ', variables('masterScriptFileName'), ' ', parameters('spClientId'), ' ', parameters('spClientSecret'), ' ', resourceGroup().name, ' ', variables('subscriptionId'), ' ', variables('tenantId'), ' ', parameters('kubeVer'), ' ', parameters('casVer'))]",
 					"fileUris": [
 						"[uri(parameters('_artifactsLocation'), concat(variables('scriptsDir'), '/', variables('masterScriptFileName'), parameters('_artifactsLocationSasToken')))]"
 					]
@@ -383,7 +383,7 @@
 									"typeHandlerVersion": "2.0",
 									"autoUpgradeMinorVersion": true,
 									"protectedSettings": {
-										"commandToExecute": "[concat('bash ', variables('vmssScriptFileName'), ' ', parameters('spClientId'), ' ', parameters('spClientSecret'), ' ', resourceGroup().name, ' ', variables('subscriptionId'), ' ', variables('tenantId'), ' ', parameters('location'), ' ', parameters('vmssSubnetName'), ' ', parameters('virtualNetworkName'), parameters('kubeVer'))]",
+										"commandToExecute": "[concat('bash ', variables('vmssScriptFileName'), ' ', parameters('spClientId'), ' ', parameters('spClientSecret'), ' ', resourceGroup().name, ' ', variables('subscriptionId'), ' ', variables('tenantId'), ' ', parameters('location'), ' ', parameters('vmssSubnetName'), ' ', parameters('virtualNetworkName'), ' ', parameters('kubeVer'))]",
 										"fileUris": [
 											"[uri(parameters('_artifactsLocation'), concat(variables('scriptsDir'), '/', variables('vmssScriptFileName'), parameters('_artifactsLocationSasToken')))]"
 										]
