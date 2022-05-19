@@ -26,7 +26,7 @@
 				"1.24.0-00"
             ],
 			"metadata": {
-				"description": "The name of your VM master node."
+				"description": "Kubernetes version."
 			}
 		},
 		"casVer": {
@@ -39,17 +39,19 @@
 				"1.24.0"
             ],
 			"metadata": {
-				"description": "The name of your VM master node."
+				"description": "Cluster-autoscaler version."
 			}
 		},
 		"vmName": {
 			"type": "string",
+			"defaultValue": "master01",
 			"metadata": {
 				"description": "The name of your VM master node."
 			}
 		},
 		"vmssName": {
 			"type": "string",
+			"defaultValue": "worker",
 			"metadata": {
 				"description": "The name of your VMSS cluster."
 			}
