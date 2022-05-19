@@ -102,6 +102,14 @@ nodeRegistration:
   taints: null
 EOL
 
+# docker - set systemd as the cgroup driver
+cat > /etc/docker/daemon.json <<EOL
+{
+  "exec-opts": ["native.cgroupdriver=systemd"]
+}
+EOL
+# Restart docker
+systemctl restart docker
 }
 
 joinKubeadm() {
