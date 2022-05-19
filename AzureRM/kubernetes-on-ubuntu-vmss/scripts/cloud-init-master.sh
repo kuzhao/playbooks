@@ -34,23 +34,32 @@ installDeps() {
 }
 
 setupKubeadm() {
-    export HOME=/root
-    # initialize master
-    kubeadm init --pod-network-cidr=192.168.0.0/16  --token $KUBEADM_TOKEN
+export HOME=/root    
+# docker - set systemd as the cgroup driver
+cat > /etc/docker/daemon.json <<EOL
+{
+"exec-opts": ["native.cgroupdriver=systemd"]
+}
+EOL
+# Restart docker
+systemctl restart docker
 
-    # wait for kubeadm to be successfully configured
-    sleep 15
+# initialize master
+kubeadm init --pod-network-cidr=192.168.0.0/16  --token $KUBEADM_TOKEN
 
-    # copy /etc/kubernetes/admin.conf so we can use kubectl
-    mkdir -p /root/.kube
-    cp -i /etc/kubernetes/admin.conf /root/.kube/config
-    chown $(id -u):$(id -g) /root/.kube/config
-    export KUBECONFIG="/root/.kube/config"
-    
-    echo "export KUBECONFIG=/root/.kube/config" >> /root/.bashrc
+# wait for kubeadm to be successfully configured
+sleep 15
 
-    # install pod network
-    kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+# copy /etc/kubernetes/admin.conf so we can use kubectl
+mkdir -p /root/.kube
+cp -i /etc/kubernetes/admin.conf /root/.kube/config
+chown $(id -u):$(id -g) /root/.kube/config
+export KUBECONFIG="/root/.kube/config"
+
+echo "export KUBECONFIG=/root/.kube/config" >> /root/.bashrc
+
+# install pod network
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 }
 
 setupClusterAutscaler() {
