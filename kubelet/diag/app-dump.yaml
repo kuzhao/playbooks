@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-azurefile
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: azurefile-csi-premium
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -16,21 +28,18 @@ spec:
       - name: pktdump
         image: 'ubuntu:latest'
         command:
-          - nsenter
-          - --target
-          - "1"
-          - --mount
-          - --uts
-          - --ipc
-          - --net
-          - --
-          - bash
-          - -c
-          - |
-            NAME=$(cat /etc/hostname);echo /tmp/$NAME.pcap;tcpdump -C 100 -G 1200 -W 4 -i any -w /tmp/$NAME.pcap host 52.179.6.240;
-            echo 'done';sleep infinity
-        securityContext:
-          privileged: true
+        - bash
+        - -c
+        - |
+          NAME=$(cat /etc/hostname);echo /tmp/$NAME.pcap;apt-get update && apt-get install -y tcpdump;
+          tcpdump -C 100 -W 5 -i any -w /mnt/tcpdump/$NAME.pcap
+        volumeMounts:
+        - name: volume
+          mountPath: /mnt/tcpdump
       hostNetwork: true
       hostPID: true
       hostIPC: true
+      volumes:
+      - name: volume
+        persistentVolumeClaim:
+          claimName: my-azurefile
