@@ -6,3 +6,4 @@ This "scripts" folder contains many shell scripts that come in handy for specifi
 |pod-container-pid.sh|List container main PIDs of a pod with containerd as CRI|./pod-container-pid.sh PODNAME|
 |start-aro.sh|Streamline ARO cluster provisioning with minumum VM sizes on both master and worker pools|./start-aro.sh|
 |vm_runcmd.sh|Batch remove RunCommand VM extension over all instances in a VMSS|./vm_runcmd.sh -g VMSS_RG -v VMSS_NAME|
+|vmpower.sh|Batch power on all VMs in a resource group|./vmpower.sh -s SUBSCRIPTION_ID -g RG_NAME|

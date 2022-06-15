@@ -1,4 +1,5 @@
 #!/bin/bash
+az group create -l centralindia -g rg-centralindia
 az network vnet create -n aro-vnet -g rg-centralindia --subnet-name subnet1 --subnet-prefixes 10.0.0.0/24
 az network vnet subnet update -n subnet1 --vnet-name aro-vnet -g rg-centralindia --service-endpoints Microsoft.ContainerRegistry
 az network vnet subnet create -n aro-master --vnet-name aro-vnet -g rg-centralindia --address-prefixes 10.0.255.0/24 --service-endpoints Microsoft.ContainerRegistry --disable-private-link-service-network-policies true
