@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-azurefile
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: azurefile-csi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-dump
+  namespace: default
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: node-dump
+  template:
+    metadata:      
+      labels:
+        app: node-dump
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            namespaces: # Specify the namespace(s) of the target pods
+            - kube-system
+            labelSelector:
+              matchExpressions: # Match the target pods
+              - key: k8s-app
+                operator: In
+                values:
+                - kube-dns
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - node-dump
+      containers:
+      - name: pktdump
+        image: 'ubuntu:latest'
+        command:
+        - bash
+        - -c
+        - |
+          apt-get update && apt-get install -y tcpdump;
+          tcpdump -C 100 -W 5 -i any host 168.63.129.16 -w /mnt/tcpdump/$(hostname).pcap
+        volumeMounts:
+        - name: volume
+          mountPath: /mnt/tcpdump
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      volumes:
+      - name: volume
+        persistentVolumeClaim:
+          claimName: my-azurefile

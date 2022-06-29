@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: ds-dump-pstree
+  name: dump-pstree
+spec:
+  selector:
+    matchLabels:
+      component: ds-dump-pstree
+  template:
+    metadata:
+      labels:
+        component: ds-dump-pstree
+    spec:
+      nodeSelector:
+        agentpool: agentpool
+      containers:
+      - command:
+        - bash
+        - -c
+        - |
+          apt-get update && apt-get install -y psmisc;
+          while true; do pstree -pTs 1;sleep 10; done
+        image: ubuntu
+        name: pstree
+        volumeMounts:
+        - name: host-root
+          mountPath: /host
+      hostPID: true
+      hostIPC: true
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
+          type: ''

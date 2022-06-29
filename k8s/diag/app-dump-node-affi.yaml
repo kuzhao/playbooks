@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-azurefile
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: azurefile-csi
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: app-dump
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: node-dump
+  template:
+    metadata:      
+      labels:
+        app: node-dump
+    spec:
+      containers:
+      - name: pktdump
+        image: 'ubuntu:latest'
+        command:
+        - bash
+        - -c
+        - |
+          apt-get update && apt-get install -y tcpdump;
+          tcpdump -C 100 -W 5 -i any -w /mnt/tcpdump/$(hostname).pcap
+        volumeMounts:
+        - name: volume
+          mountPath: /mnt/tcpdump
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      volumes:
+      - name: volume
+        persistentVolumeClaim:
+          claimName: my-azurefile

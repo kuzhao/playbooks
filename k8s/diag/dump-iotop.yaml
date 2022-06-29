@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-azurefile
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: azurefile-csi
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -11,29 +23,30 @@ spec:
       labels:
         component: ds-dump-procio
     spec:
-      hostPID: true
-      hostNetwork: true
       volumes:
       - name: host-root
         hostPath:
           path: /
           type: ''
-      - name: azurefile
+      - name: volume
         persistentVolumeClaim:
-          claimName: azurefile
+          claimName: my-azurefile
       containers:
       - command:
         - sh
         - -c
         - |
-          apt-get update && apt-get install -y iotop;chroot /host iotop -bot -d 10 > /data/iotop-$(hostname).log
+          apt-get update && apt-get install -y iotop;chroot /host iotop -Pbot -d 10 > /data/iotop-$(hostname).log
         image: ubuntu
         name: procio
         volumeMounts:
         - name: host-root
           mountPath: /host
-        - name: azurefile
+        - name: volume
           mountPath: /data
         securityContext:
           capabilities:
             add: ["NET_ADMIN", "SYS_TIME"]
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
