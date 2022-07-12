@@ -24,6 +24,8 @@ spec:
       labels:
         app: node-dump
     spec:
+      nodeSelector:
+        agentpool: customkube
       containers:
       - name: pktdump
         image: 'ubuntu:latest'
@@ -32,7 +34,7 @@ spec:
         - -c
         - |
           apt-get update && apt-get install -y tcpdump;
-          tcpdump -C 100 -W 5 -i any -w /mnt/tcpdump/$(hostname).pcap
+          tcpdump -C 100 -W 5 -i any host 168.63.129.16 -w /mnt/tcpdump/$(hostname).pcap
         volumeMounts:
         - name: volume
           mountPath: /mnt/tcpdump
