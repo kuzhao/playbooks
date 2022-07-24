@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
-    component: ds-check-mem
+    component: check-mem
   name: check-mem
 spec:
   selector:
@@ -18,20 +18,11 @@ spec:
       hostIPC: true
       containers:
       - command:
-        - nsenter
-        - --target
-        - "1"
-        - --mount
-        - --uts
-        - --ipc
-        - --net
-        - --pid
-        - --
-        - sh
+        - bash
         - -c
-        - |
-          while true; do ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 2 -nr | head -10 > /tmp/top-pcpu-$(date +%F_%T); sleep 300; done
-        image: alpine
+        - |          
+          while true;do date;
+          ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 2 -nr | head -5;
+          echo; sleep 10; done
+        image: ubuntu
         name: utility
-        securityContext:
-          privileged: true

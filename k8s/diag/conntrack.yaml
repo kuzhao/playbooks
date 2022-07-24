@@ -1,0 +1,36 @@
+# Privileged container required
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: conntrack
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: conntrack-dump
+  template:
+    metadata:      
+      labels:
+        app: conntrack-dump
+    spec:
+      containers:
+      - name: conntrack
+        image: 'ubuntu:latest'
+        command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          apt-get update && apt-get install -y moreutils;
+          while true;do conntrack -S | ts '[%Y-%m-%d %H:%M:%S]';sleep 5;done
+        securityContext:
+          privileged: true
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
