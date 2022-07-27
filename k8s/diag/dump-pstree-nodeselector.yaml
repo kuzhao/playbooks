@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: ds-dump-pstree
+  name: dump-pstree
+spec:
+  selector:
+    matchLabels:
+      component: ds-dump-pstree
+  template:
+    metadata:
+      labels:
+        component: ds-dump-pstree
+    spec:
+      nodeSelector:
+        agentpool: agentpool
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          while true; do pstree -ps 1 > /var/tmp/pstree.out;sleep 10; done
+        image: alpine
+        name: pstree
+        securityContext:
+          privileged: true
