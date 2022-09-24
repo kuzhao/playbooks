@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: enable-kdump
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: enable-kdump
+  template:
+    metadata:      
+      labels:
+        app: enable-kdump
+    spec:
+      nodeSelector:
+        agentpool: system
+      containers:
+      - volumeMounts:
+        - name: host-root
+          mountPath: /host
+        env:
+        - name: DEBIAN_FRONTEND
+          value: "noninteractive"
+        name: kdump
+        image: 'ubuntu:latest'
+        command:
+        - bash
+        - -c
+        - |
+          chroot /host apt-get update;chroot /host apt-get install -y kdump-tools;
+          sleep infinity
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
+          type: ''

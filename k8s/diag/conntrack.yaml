@@ -13,24 +13,27 @@ spec:
       labels:
         app: conntrack-dump
     spec:
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
+          type: ''
       containers:
       - name: conntrack
         image: 'ubuntu:latest'
         command:
-        - nsenter
-        - --target
-        - "1"
-        - --mount
-        - --uts
-        - --pid
-        - --
-        - sh
+        - chroot
+        - /host
+        - bash
         - -c
         - |
           apt-get update && apt-get install -y moreutils;
           while true;do conntrack -S | ts '[%Y-%m-%d %H:%M:%S]';sleep 5;done
         securityContext:
           privileged: true
+        volumeMounts:
+        - name: host-root
+          mountPath: /host
       hostNetwork: true
       hostPID: true
       hostIPC: true

@@ -17,22 +17,19 @@ spec:
       hostPID: true
       hostIPC: true
       containers:
-      - command:
-        - nsenter
-        - --target
-        - "1"
-        - --mount
-        - --uts
-        - --ipc
-        - --net
-        - --pid
-        - --
-        - sh
+      - volumeMounts:
+        - name: host-root
+          mountPath: /host
+        command:
+        - bash
         - -c
         - |
-          echo "250000" > /proc/sys/kernel/pid_max
-          while true; do sleep 100000; done
+          chroot /host echo "250000" > /proc/sys/kernel/pid_max
+          sleep infinity
         image: alpine
         name: sysctl-patch
-        securityContext:
-          privileged: true
+    volumes:
+      - name: host-root
+        hostPath:
+          path: /
+          type: ''

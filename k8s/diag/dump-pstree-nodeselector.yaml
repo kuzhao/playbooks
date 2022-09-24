@@ -15,6 +15,11 @@ spec:
     spec:
       nodeSelector:
         agentpool: agentpool
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
+          type: ''
       containers:
       - command:
         - bash
@@ -29,8 +34,4 @@ spec:
           mountPath: /host
       hostPID: true
       hostIPC: true
-      volumes:
-      - name: host-root
-        hostPath:
-          path: /
-          type: ''
+      
