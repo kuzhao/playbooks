@@ -38,11 +38,11 @@ spec:
         - |
           apt-get update && apt-get install -y jq psmisc;
           while true;do
-          date;ps -e -w -o "thcount,cgname,args,pid"  --no-headers | sort -k 1 -nr | head;
+          date;ps -e -w -o "thcount,cgname,args,pid"  --no-headers | sort -k 1 -nr | head
           for i in $(chroot /host crictl pods | grep -v NotReady | tail -n +2| cut -d ' ' -f1);do
-          chroot /host crictl inspectp $i | jq '. | "\(.info.pid) \(.status.metadata.name)"';
-          PID=$(ps -ef | grep -v grep | grep $(chroot /host crictl inspectp $i | jq '.info.pid')| tr -s ' ' |cut -d ' ' -f3);
-          echo MainPID:$PID;pstree $PID;done;echo;
+          echo Pod:$(chroot /host crictl inspectp $i | jq '. | "\(.status.metadata.name)"')
+          PID=$(ps -ef | grep -v grep | grep $(chroot /host crictl inspectp $i | jq '.info.pid')| tr -s ' ' |cut -d ' ' -f3)
+          echo MainShimPID:$PID;pstree $PID;done;echo
           done > /data/pthreads-$(hostname).log
         image: ubuntu
         name: dump-pid

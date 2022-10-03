@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: my-azurefile
+  name: msdiag-azurefile
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
       storage: 10Gi
-  storageClassName: azurefile-csi
+  storageClassName: azurefile-csi-premium
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -16,7 +16,7 @@ metadata:
   name: app-dump
   namespace: default
 spec:
-  replicas: 5
+  replicas: 2
   selector:
     matchLabels:
       app: node-dump
@@ -30,7 +30,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - topologyKey: kubernetes.io/hostname
             namespaces: # Specify the namespace(s) of the target pods
-            - kube-system
+            - default
             labelSelector:
               matchExpressions: # Match the target pods
               - key: k8s-app
@@ -54,7 +54,7 @@ spec:
         - -c
         - |
           apt-get update && apt-get install -y tcpdump;
-          tcpdump -C 100 -W 5 -i any host 168.63.129.16 -w /mnt/tcpdump/$(hostname).pcap
+          tcpdump -C 100 -W 5 -i any host 10.197.226.12 -w /mnt/tcpdump/$(hostname).pcap
         volumeMounts:
         - name: volume
           mountPath: /mnt/tcpdump
@@ -64,4 +64,4 @@ spec:
       volumes:
       - name: volume
         persistentVolumeClaim:
-          claimName: my-azurefile
+          claimName: msdiag-azurefile
