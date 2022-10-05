@@ -124,7 +124,7 @@
 		},
 		"vmSize": {
 			"type": "string",
-			"defaultValue": "Standard_D2pds_v5",
+			"defaultValue": "Standard_D2as_v5",
 			"metadata": {
 				"description": "The size of the VM"
 			}
@@ -254,7 +254,7 @@
 					"imageReference": {
 						"publisher": "Canonical",
 						"offer": "UbuntuServer",
-						"sku": "18_04-lts-arm64",
+						"sku": "18_04-lts-gen2",
 						"version": "latest"
 					}
 				},
@@ -338,7 +338,7 @@
 						"imageReference": {
 							"publisher": "Canonical",
 							"offer": "UbuntuServer",
-							"sku": "18_04-lts-arm64",
+							"sku": "18_04-lts-gen2",
 							"version": "latest"
 						}
 					},
@@ -364,21 +364,13 @@
 								"name": "[concat('nic', parameters('vmssName'))]",
 								"properties": {
 									"primary": true,
+									"enableAcceleratedNetworking": true,
 									"ipConfigurations": [
 										{
 											"name": "[concat('ipconfigVmss', parameters('vmssName'))]",
 											"properties": {
 												"subnet": {
 													"id": "[variables('vmssSubnetRef')]"
-												},
-												"publicIPAddressConfiguration": {
-													"name": "[variables('vmssPublicIpAddressName')]",
-													"properties": {
-														"idleTimeoutInMinutes": 10,
-														"dnsSettings": {
-															"domainNameLabel": "[parameters('vmssDnsLabelPrefix')]"
-														}
-													}
 												}
 											}
 										}

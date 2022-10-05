@@ -45,7 +45,7 @@ EOL
 systemctl restart docker
 
 # initialize master
-kubeadm init --pod-network-cidr=192.168.0.0/16  --token $KUBEADM_TOKEN
+kubeadm init --pod-network-cidr=10.244.0.0/16  --token $KUBEADM_TOKEN
 
 # wait for kubeadm to be successfully configured
 sleep 15
@@ -59,7 +59,7 @@ export KUBECONFIG="/root/.kube/config"
 echo "export KUBECONFIG=/root/.kube/config" >> /root/.bashrc
 
 # install pod network
-kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+kubectl apply -f "https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
 }
 
 setupClusterAutscaler() {
