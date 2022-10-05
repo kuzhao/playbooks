@@ -117,6 +117,10 @@ joinKubeadm() {
     kubeadm join --config /etc/kubeadm-join.yaml
 }
 
+#install flow
+#wait for 15sec until cloud-init finishes the job on apt repo search/replacement
+sleep 15
+
 installDeps
 createConfigFiles
 joinKubeadm
