@@ -89,7 +89,7 @@ apiVersion: kubeadm.k8s.io/v1beta2
 caCertPath: /etc/kubernetes/pki/ca.crt
 discovery:
   bootstrapToken:
-    apiServerEndpoint: 10.0.1.4:6443
+    apiServerEndpoint: 10.15.224.4:6443
     token: ${KUBEADM_TOKEN}
     unsafeSkipCAVerification: true
   timeout: 5m0s

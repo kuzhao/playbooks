@@ -124,7 +124,7 @@
 		},
 		"vmSize": {
 			"type": "string",
-			"defaultValue": "Standard_D2s_v3",
+			"defaultValue": "Standard_D2pds_v5",
 			"metadata": {
 				"description": "The size of the VM"
 			}
@@ -199,20 +199,20 @@
 			"properties": {
 				"addressSpace": {
 					"addressPrefixes": [
-						"10.0.0.0/16"
+						"10.15.224.0/24"
 					]
 				},
 				"subnets": [
 					{
 						"name": "[parameters('vmssSubnetName')]",
 						"properties": {
-							"addressPrefix": "10.0.0.0/24"
+							"addressPrefix": "10.15.224.128/25"
 						}
 					},
 					{
 						"name": "[parameters('subnetName')]",
 						"properties": {
-							"addressPrefix": "10.0.1.0/24"
+							"addressPrefix": "10.15.224.0/28"
 						}
 					}
 				]
@@ -254,7 +254,7 @@
 					"imageReference": {
 						"publisher": "Canonical",
 						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
+						"sku": "18_04-lts-arm64",
 						"version": "latest"
 					}
 				},
@@ -338,7 +338,7 @@
 						"imageReference": {
 							"publisher": "Canonical",
 							"offer": "UbuntuServer",
-							"sku": "18.04-LTS",
+							"sku": "18_04-lts-arm64",
 							"version": "latest"
 						}
 					},
