@@ -16,10 +16,10 @@ echo "============================="
 # Renew runCommand on instances when necessary
 for i in $(az vmss list-instances -g $RG_NAME --name $VMSS -o tsv | awk '{print $4}' | awk -F '/' '{print $NF}');do
         echo "On instance $i"
-        az vmss get-instance-view -g MC_RG-EASTUS_LAB-AKS-CNI_EASTUS --name aks-system1-21863241-vmss --instance-id $i --query vmAgent.extensionHandlers | grep RunCommandLinux
+        az vmss get-instance-view -g ${RG_NAME} --name ${VMSS} --instance-id $i --query vmAgent.extensionHandlers | grep RunCommandLinux
         if [[ $? -eq 0 ]]; then
                 echo "Instance $i currently has runCommand extension. Refreshing the extension."
-                az vmss run-command invoke -g MC_RG-EASTUS_LAB-AKS-CNI_EASTUS --name aks-system1-21863241-vmss --command-id RemoveRunCommandLinuxExtension --instance-id $i
+                az vmss run-command invoke -g ${RG_NAME} --name ${VMSS} --command-id RemoveRunCommandLinuxExtension --instance-id $i
         else
                 echo "Instance $i does not have runCommand extension installed. No need to refresh."
         fi
