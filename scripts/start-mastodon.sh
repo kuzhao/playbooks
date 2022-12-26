@@ -3,14 +3,13 @@
 ## Static Vars
 MASTODON_DNLD_URL='https://github.com/mastodon/mastodon/archive/refs/tags/v4.0.2.zip'
 SCRIPTDIR=`dirname $(readlink -f $0)`
-echo $SCRIPTDIR
 
 ## Function
 preCleanup() {
 	for i in $(ls | grep mastodon);do rm -rf $i;done
 }
 
-prepareFile() {
+artifact() {
 	[[ $MASTODON_DNLD_URL =~ \/v([0-9|\.]+)\.zip ]] && MASTODON_VER=${BASH_REMATCH[1]}
 	wget -q $MASTODON_DNLD_URL -O v$MASTODON_VER.zip && unzip -q $(echo $MASTODON_DNLD_URL | sed 's/.*tags\///')
 	if [ $? -ne 0 ]; then echo 'Cannot download mastodon artifact zip'; exit 1; fi
@@ -100,13 +99,13 @@ envFile() {
 preCleanup
 
 setInput
-
-prepareFile
-
+artifact
 composeFile
 
 cp $MASTODON_DIR/.env.production.sample $MASTODON_DIR/.env.production
 
 genSecretOtpVap
-
 envFile
+
+cd $MASTODON_DIR
+docker-compose up -d
