@@ -1,0 +1,8 @@
+Lens,win,K8s mgmt UI,https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.2.4/OpenLens-6.2.4.exe
+Lens,linux,K8s mgmt UI,https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.2.4/OpenLens-6.2.4.x86_64.AppImage
+K9s,linux,K8s Terminal Style UI,https://github.com/derailed/k9s/releases/download/v0.27.3/k9s_Linux_arm64.tar.gz
+K9s,win,K8s Terminal Style UI,https://github.com/derailed/k9s/releases/download/v0.27.3/k9s_Windows_amd64.tar.gz
+7zipR,win,popular zip tool,https://www.7-zip.org/a/7zr.exe
+Sublime3,win,popular text editor,https://download.sublimetext.com/sublime_text_build_4143_x64_setup.exe
+Sublime3,linux,popular text editor,https://download.sublimetext.com/sublime-text_build-4143_amd64.deb
+git,win,version control,https://github.com/git-for-windows/git/releases/download/v2.39.1.windows.1/Git-2.39.1-64-bit.exe
