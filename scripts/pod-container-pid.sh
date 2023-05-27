@@ -1,4 +1,6 @@
 #!/bin/bash
+# The chain of search goes like:
+# POD_NAME -> PID_PAUSE -> PID_POD_SHIM -> PID_CONTAINERS[]
 
 function fail {
 	echo "$1"
@@ -14,7 +16,7 @@ if $?; then
 [[ -z $POD_PPID ]] && fail "Error in finding the containershim process for pod $1"
 
 # Loop through the direct children of the containerd-shim
-for PROC_CMD in $(ps -ef | grep $POD_PPID | grep -v 'containerd-shim\|grep' | grep -v '/pause' | awk '{print $2 "#" $8}');
+for PROC_CMD in $(ps -ef | grep $POD_PPID | grep -v 'containerd-shim\|grep\|/pause' | awk '{print $2 "#" $8}');
 do
 	[[ -z $PROC_CMD ]] && fail "No PID found for one of the container processes in pod $1, container-shim PID $POD_PPID"
 	# Get Hash number of the container under its PID through runc
