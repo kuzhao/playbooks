@@ -6,7 +6,8 @@ CPU_CORE=$(grep -c ^processor /proc/cpuinfo)
 
 # Functions
 TcpConvCount() {  # This function counts the number of tcp flows, result is the actual count - 1 
-	((CONV_NUM=$(tshark -nr results.pcap -q -z conv,tcp | wc -l) - 7))
+	tshark -nr results.pcap -q -z conv,tcp | tee flow_list.txt
+	((CONV_NUM=$(cat flow_list.txt | wc -l) - 7))
 }
 
 FlowSep() {
