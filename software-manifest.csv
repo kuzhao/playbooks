@@ -1,3 +1,4 @@
+Name,OS,Function,DownloadLink
 Lens,win,K8s mgmt UI,https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.2.4/OpenLens-6.2.4.exe
 Lens,linux,K8s mgmt UI,https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.2.4/OpenLens-6.2.4.x86_64.AppImage
 K9s,linux,K8s Terminal Style UI,https://github.com/derailed/k9s/releases/download/v0.27.3/k9s_Linux_arm64.tar.gz
