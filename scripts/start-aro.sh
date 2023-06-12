@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Process Args
-while getopts g:v: flag;
+while getopts i:s: flag;
 do
     case "${flag}" in
         i) CLIENT_ID=${OPTARG};;
