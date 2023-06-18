@@ -1,18 +1,17 @@
 #!/bin/bash
 ### Functions
 find_GOFILE_path() {
-	echo "Found the file for $GOFILE"
 	GOFILE_PATH=''
-	for i in $(find $CODEBASE -name $GOFILE);do # Scan all files with the given filename
+	for i in $(find $CODEBASE -name $GOFILE);do # Scan all files bearing the given filename in GOFILE var
 		TESTLINE=$(sed "${LINENUM}q;d" $i)
 		# check if klog call
 		echo $TESTLINE | grep 'klog' > /dev/null
 		[ $? -ne 0 ] && continue
 		# extract klog content
 		LOGGED=$(echo $TESTLINE | grep -o '(\".*:' | cut -c 3-)
-		# check if the klog content equals to the line currently being checked
+		# check if the klog content is contained in the log line currently being processed
 		echo $line | grep "$LOGGED" > /dev/null
-		[ $? -eq 0 ] && GOFILE_PATH=$i && break
+		[ $? -eq 0 ] && GOFILE_PATH=$i && echo "Found the right file under name $GOFILE" && break
 	done
 }
 
