@@ -15,6 +15,7 @@ while [ "$X" -lt "$1" ]
 do 
 random_number=`od -N3 -An -i /dev/urandom | awk -v f=0 -v r="$non_random_words" '{printf "%i\n", f + r * $1 / 16777216}'` 
 FILENAME=$(sed `echo $random_number`"q;d" $ALL_NON_RANDOM_WORDS)
-dd if=/dev/urandom of=$PREFIX/$FILENAME count=$(($random_number * 100000 / $non_random_words)) bs=32k
+# dd if=/dev/urandom of=$PREFIX/$FILENAME count=$(($random_number * 60000 / $non_random_words)) bs=32k
+base64 /dev/urandom | head -c $(($random_number * 60000 / $non_random_words)) > $PREFIX/$FILENAME
 let "X = X + 1" 
 done
