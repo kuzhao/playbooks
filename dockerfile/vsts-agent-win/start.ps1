@@ -1,3 +1,5 @@
+# Source: https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#create-and-build-the-dockerfile
+
 if (-not (Test-Path Env:AZP_URL)) {
   Write-Error "error: missing AZP_URL environment variable"
   exit 1
@@ -66,4 +68,3 @@ finally
     --auth PAT `
     --token "$(Get-Content ${Env:AZP_TOKEN_FILE})"
 }
-

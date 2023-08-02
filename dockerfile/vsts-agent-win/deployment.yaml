@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vsts-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vsts
+  template:
+    metadata:
+      labels:
+        app: vsts
+    spec:
+      os: 
+        name: windows
+      containers:
+      - env:
+        - name: AZP_TOKEN
+          value: 'TOKEN_TBD'
+        - name: AZP_URL
+          value: 'ADO_ORG_URL'
+        - name: AZP_POOL
+          value: 'POOLNAME'
+        name: agent-win
+        image: ACRNAME/vsts-agent-win:v1
+      tolerations:
+      - key: kubernetes.azure.com/scalesetpriority
+        operator: Exists
+        effect: NoSchedule
+
