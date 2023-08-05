@@ -11,4 +11,4 @@ This "scripts" folder contains many shell scripts that come in handy for specifi
 |renew_runcmd.sh|Manually refresh runCommand VM extension on the given VMSS|bash renew_runcmd.sh -g RG_NAME -v VMSS_NAME|
 |start-aro.sh|Streamline ARO cluster provisioning with minumum VM sizes on both master and worker pools|bash start-aro.sh -i CLIENT_ID -s CLIENT_SECRET|
 |tcp_anorm.sh|Check if unusual TCP RST or FIN among given pcaps|bash tcp_anorm.sh|
-|vmpower.sh|Power on all VMs in resource groups|bash vmpower.sh -s SUB_ID -g RG_NAME|
+|vmpower.sh|Power on all VMs in resource groups|bash vmpower.sh -s [SUB_ID,..] -g [RG_NAME,..]|
