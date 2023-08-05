@@ -1,6 +1,11 @@
 #!/bin/bash
 
-############## Function definitions #############
+################
+#Dependency:
+#  Install AzCli first
+################
+
+### Functions
 az_login() {
 	az account show -o table
 	if ! [ $? -eq 0 ]; then
@@ -16,8 +21,7 @@ az_login() {
 	fi
 }
 
-
-############ Start the execution ############
+############ Start Execution ############
 ## Check az login
 az_login
 
@@ -45,5 +49,6 @@ if [ $? -ne 0 ]; then
 fi
 
 ## Sleep for 4mins, wait for JIT to expire before removing the allow rule
+echo 'Sleep for 4mins then remove the allow rule...'
 sleep 240
 az network nsg rule delete -g $NIC_NSG_RG --nsg-name $NIC_NSG_NAME -n jit

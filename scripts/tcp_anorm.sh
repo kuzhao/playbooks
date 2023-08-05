@@ -1,4 +1,17 @@
 #!/bin/bash
+################
+#Dependency:
+#  tshark
+#Input:
+#  Place all pcap files to be processed under current dir
+#  before exec this script
+#Output:
+#  - "pcap_sep" child folder which contains subset pcaps of all TCP flows
+#  - "pcap_anorm" child folder which contains abnormal TCP flow pcaps
+#Caution
+#  The execution costs ~90% of CPU cycles;
+#  Ensure extra storage space under current dir equaling to sum of input pcap files
+################
 
 # Var
 PCAP_ROOT_DIR=$(pwd)
@@ -13,7 +26,8 @@ TcpConvCount() {  # This function counts the number of tcp flows, result is the 
 FlowSep() {
 	mkdir pcap_sep
 	for FLOW_IDX in $(seq 0 $CONV_NUM);
-	do  # Fork one tshark instance per FLOW after counting flow number,throttling on process forking is set in the while block
+	do  # Fork one tshark process per FLOW after counting flow number
+		# total tshark process count throttled to CPU core count
 		tshark -nr results.pcap -Y "tcp.stream eq $FLOW_IDX" -q -w pcap_sep/tcp-s$FLOW_IDX.pcap > /dev/null 2>&1 &
 		while true; do  # break the withholding while loop only if less tshark instances than cpu cores
 			TSHARK_THREAD=$(ps -ef | grep $$ | grep tshark | wc -l)
@@ -39,6 +53,7 @@ Detect() {
 
 }
 
+############ Start Execution ############
 mergecap *.pcap* -w results.pcap
 TcpConvCount
 FlowSep

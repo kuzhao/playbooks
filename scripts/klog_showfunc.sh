@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ### Functions
 find_GOFILE_path() {
 	GOFILE_PATH=''

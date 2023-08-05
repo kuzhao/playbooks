@@ -1,6 +1,17 @@
 #!/bin/bash
-# A script to automatically start all VM/VMSS in given subs and resourcegroups.
-############## Function definitions #############
+
+################
+#Dependency:
+#  Install AzCli first
+#Code logic
+#  For each subscription passed in -s, cycle through all RG names
+#  passed in -g
+#  Non-existing RGs are skipped
+#Caution
+#  Both sub and RG lists in args need to be in comma-separated format without space
+################
+
+### Functions
 az_login() {
 	az account show -o table
 	if ! [ $? -eq 0 ]; then
@@ -42,7 +53,7 @@ power_on() {
 	done	
 }
 
-############ Start the execution ############
+############ Start Execution ############
 # Process Args -- 
 # -s: subids separated by comma
 # -g: RGs separated by comma

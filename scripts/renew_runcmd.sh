@@ -1,5 +1,10 @@
 #!/bin/bash
 
+################
+#Dependency:
+#  Install AzCli first
+################
+
 # Process Args
 while getopts g:v: flag;
 do

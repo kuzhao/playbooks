@@ -1,6 +1,13 @@
 #!/bin/bash
+
+################
+#Dependency:
+#  crictl,pstree
+#  containerd service up and running
+#Code logic:
 # The chain of search goes like:
-# POD_NAME -> PID_PAUSE -> PID_POD_SHIM -> PID_CONTAINERS[]
+# POD_NAME -> PID_PAUSE -> PID_POD_SHIM -> []PID_CONTAINERS
+################
 
 function fail {
 	echo "$1"

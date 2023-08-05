@@ -1,4 +1,14 @@
 #!/bin/bash
+
+################
+#Dependency:
+#  Github repo contents of iovisor/bpftrace
+#  - bpftrace release binary v0.18.0
+#  - tcpconnect.bt bpftrace cfg
+#Caution:
+#  This script uses /tmp as working dir.
+################
+
 ### Functions
 getTraffic() {
 	while IFS= read -r line; do

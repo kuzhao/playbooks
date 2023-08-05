@@ -1,5 +1,13 @@
 #!/bin/bash
 
+################
+#Dependency:
+#  Install AzCli first
+#Optional input:
+#  RedHat OCP registry pull-secret file under name "pull-secret.txt"
+#  should be placed under the current dir when this script is executed
+################
+
 # Process Args
 while getopts i:s: flag;
 do
