@@ -22,4 +22,4 @@ jobs:
         push: true
         tags: |
           ${{ secrets.DOCKERHUB_USERNAME }}/start-azurelab:latest
-          ${{ secrets.DOCKERHUB_USERNAME }}/start-azurelab:commit-${{ GITHUB_SHA }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/start-azurelab:commit-$GITHUB_SHA
