@@ -28,13 +28,14 @@ FlowSep() {
 	for FLOW_IDX in $(seq 0 $CONV_NUM);
 	do  # Fork one tshark process per FLOW after counting flow number
 		# total tshark process count throttled to CPU core count
+  		echo "Splitting flow No.$FLOW_IDX"
 		tshark -nr results.pcap -Y "tcp.stream eq $FLOW_IDX" -q -w pcap_sep/tcp-s$FLOW_IDX.pcap > /dev/null 2>&1 &
 		while true; do  # break the withholding while loop only if less tshark instances than cpu cores
 			TSHARK_THREAD=$(ps -ef | grep $$ | grep tshark | wc -l)
 			if [ $TSHARK_THREAD -lt $CPU_CORE ]; then
 				break
 			fi
-			echo "Tshark thread count equals to cpu count. Wait for some to finish..."
+			# echo "Tshark thread count equals to cpu count. Wait for some to finish..."
 			sleep 5
 		done
 	done
