@@ -17,8 +17,7 @@ function fail {
 # Start from the given arg of pod name, first get the pod's parent containerd-shim processID
 POD_ID=$(crictl pods | grep -v NotReady | grep $1 | awk '{print $1}')
 [[ ! -z $POD_ID ]] && POD_PAUSE_PID=$(crictl inspectp $POD_ID | jq '.info.pid') || fail "Pod $1 not found"
-if $?; then
-	echo "Invalid pod id acquired: got $POD_ID"
+
 [[ ! -z $POD_PAUSE_PID ]] && POD_PPID=$(pstree -pTs $POD_PAUSE_PID | tr '(' '\n' | tail -n 2 | head -n 1 | awk -F ')' '{print $1}') || fail "No /pause found for $1"
 [[ -z $POD_PPID ]] && fail "Error in finding the containershim process for pod $1"
 
