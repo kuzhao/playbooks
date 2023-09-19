@@ -1,0 +1,133 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-lfs
+provisioner: file.csi.azure.com
+parameters:
+  skuName: Standard_LRS
+  enableLargeFileShares: 'true'
+reclaimPolicy: Delete
+mountOptions:
+  - mfsymlinks
+  - actimeo=30
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: afs-curltest
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Ti
+  storageClassName: azurefile-lfs
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: runscript
+data:
+  curl2.sh: |
+    url="https://www.google.com"
+    timeout="1.0"
+    interval=4
+    hh=$(echo $url|cut -d'/' -f3)
+    while true; do
+      curl -o /dev/null --connect-timeout $timeout -s -w "${hh},remote_ip:%{remote_ip},dns_resolution:%{time_namelookup},tcp_established:%{time_connect},ssl_handshake_done:%{time_appconnect},TTFB:%{time_starttransfer},httpstatus:%{http_code},size_download:%{size_download}\n" $url | while read pong; do 
+        echo "$(date -u +'%F %H:%M:%S') - $pong"
+      done
+      sleep $interval
+    done 2>&1 | tee -a "/data/$(cat /mnt/hostname)_$(hostname)_${hh}.log"
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: app-dump
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: node-dump
+  template:
+    metadata:      
+      labels:
+        app: node-dump
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: afs-curltest
+      - name: hostname
+        hostPath:
+          path: /etc/hostname
+      nodeSelector:
+        kubernetes.azure.com/scalesetpriority: 'spot'
+      tolerations:
+        - key: kubernetes.azure.com/scalesetpriority
+          operator: Exists
+          effect: NoSchedule
+      containers:
+      - name: pktdump
+        image: 'ubuntu:latest'
+        command:
+        - bash
+        - -c
+        - |
+          apt-get update && apt-get install -y tcpdump;
+          tcpdump -C 1000 -W 5 -w /data/$(cat /mnt/hostname).pcap host <<<targetIP>>> and port 443
+        volumeMounts:              
+        - name: data
+          mountPath: /data
+        - name: hostname
+          mountPath: /mnt/hostname
+      hostNetwork: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curl
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: curl
+  template:
+    metadata:
+      labels:
+        app: curl
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: afs-curltest
+        - name: runscript
+          configMap:
+            name: runscript
+            defaultMode: 420
+        - name: hostname
+          hostPath:
+            path: /etc/hostname
+      containers:
+        - name: curl
+          image: curlimages/curl          
+          command:
+            - sh
+          args:
+            - '/script/curl2.sh'
+          volumeMounts:
+            - name: hostname
+              mountPath: /mnt/hostname
+            - name: data
+              mountPath: /data
+            - name: runscript
+              mountPath: /script
+      nodeSelector:
+        kubernetes.azure.com/scalesetpriority: 'spot'
+      tolerations:
+        - key: kubernetes.azure.com/scalesetpriority
+          operator: Exists
+          effect: NoSchedule
