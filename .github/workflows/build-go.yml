@@ -17,6 +17,8 @@ jobs:
       uses: ncipollo/release-action@v1
       id: create_release
       with:
+        commit: master
+        tag: ${{ steps.date.outputs.date }}
         draft: false
         prerelease: false
         name: ${{ steps.date.outputs.date }}
