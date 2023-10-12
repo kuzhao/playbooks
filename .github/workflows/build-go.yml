@@ -45,5 +45,5 @@ jobs:
         go build -v -o build/ ./...
     - uses: Shopify/upload-to-release@v1.0.1
       with:
-        path: build/*
+        path: clone/build/*
         repo-token: ${{ secrets.GITHUB_TOKEN }}
