@@ -22,7 +22,10 @@ jobs:
         name: ${{ steps.date.outputs.date }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      releaseId: ${{ steps.create_release.outputs.id }}
   build:
+    needs: release-setup
     strategy:
       matrix:
         repo: ['ondrajz/go-callvis','mosajjal/dnsmonster']
@@ -49,6 +52,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        release_id: ${{ steps.create_release.outputs.id }}
+        release_id: ${{ jobs.release-setup.outputs.releaseId }}
         file: "clone/build/*"
         draft: false
