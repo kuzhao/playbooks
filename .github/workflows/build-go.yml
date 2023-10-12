@@ -13,6 +13,9 @@ jobs:
         repo: ['ondrajz/go-callvis','mosajjal/dnsmonster']
     runs-on: ubuntu-latest
     steps:
+    - uses: ConorMacBride/install-package@v1.1.0
+      with:
+        apt: libpcap0.8-dev
     - uses: sudosubin/git-clone-action@v1.0.1
       with:
         repository: ${{ matrix.repo }}
