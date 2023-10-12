@@ -43,7 +43,8 @@ jobs:
         cd clone
         rm -rf example*
         go build -v -o build/ ./...
-    - uses: Shopify/upload-to-release@v1.0.1
+    - name: Upload assets
+      uses: actions/upload-artifact@v3
       with:
+        name: myapp
         path: clone/build/*
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
