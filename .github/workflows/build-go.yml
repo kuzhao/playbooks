@@ -24,5 +24,4 @@ jobs:
     - name: Build
       run: |
         cd clone
-        cd $(ls)
         go build -v ./...
