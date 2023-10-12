@@ -52,6 +52,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        release_id: ${{ jobs.release-setup.outputs.releaseId }}
+        release_id: ${{ needs.release-setup.outputs.releaseId }}
         file: "clone/build/*"
         draft: false
