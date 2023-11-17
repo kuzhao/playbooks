@@ -29,6 +29,7 @@ jobs:
   build:
     needs: release-setup
     strategy:
+      max-parallel: 1
       matrix:
         repo: ['ondrajz/go-callvis','mosajjal/dnsmonster']
     runs-on: ubuntu-latest
