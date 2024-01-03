@@ -23,19 +23,32 @@ TcpConvCount() {  # This function counts the number of tcp flows, result is the 
 	((CONV_NUM=$(cat flow_list.txt | wc -l) - 7))
 }
 
+DnsSub() {
+	tshark -r result.pcap 'dns' | grep -i -v 'no such name'| grep 'query response'|grep -v 'AAAA'| tr -s ' '| awk -F ' ' '{print $13 " " $NF}' | sort -u > dns.txt
+	while IFS= read -r line; do
+		IP1=$(echo $line|tr -s ' '|cut -d ' ' -f1|cut -d ':' -f1)
+		PORT1=$(echo $line|tr -s ' '|cut -d ' ' -f1|cut -d ':' -f2)
+		IP2=$(echo $line|tr -s ' '|cut -d ' ' -f3|cut -d ':' -f1)
+		PORT2=$(echo $line|tr -s ' '|cut -d ' ' -f3|cut -d ':' -f2)
+		TMP_GREP=$(grep $IP1 dns.txt) && HOST1=$(echo $TMP_GREP|cut -d ' ' -f1)||HOST1=$IP1
+		TMP_GREP=$(grep $IP2 dns.txt) && HOST2=$(echo $TMP_GREP|cut -d ' ' -f1)||HOST2=$IP2
+		echo "$HOST1:$PORT1 <-> $HOST2:$PORT2" >> flow_dns.txt
+	done <<< $(cat flow_list.txt | tail -n +6 | head -n -1)
+}
+
 FlowSep() {
 	mkdir pcap_sep
 	for FLOW_IDX in $(seq 0 $CONV_NUM);
 	do  # Fork one tshark process per FLOW after counting flow number
-		# total tshark process count throttled to CPU core count
-  		echo "Splitting flow No.$FLOW_IDX"
+		# tshark process count throttled to CPU core count all the time
+		echo "Splitting flow No.$FLOW_IDX"
 		tshark -nr results.pcap -Y "tcp.stream eq $FLOW_IDX" -q -w pcap_sep/tcp-s$FLOW_IDX.pcap > /dev/null 2>&1 &
 		while true; do  # break the withholding while loop only if less tshark instances than cpu cores
 			TSHARK_THREAD=$(ps -ef | grep $$ | grep tshark | wc -l)
 			if [ $TSHARK_THREAD -lt $CPU_CORE ]; then
 				break
 			fi
-			# echo "Tshark thread count equals to cpu count. Wait for some to finish..."
+			echo "Tshark thread count equals to cpu count. Wait for some to finish before a new fork..."
 			sleep 5
 		done
 	done
@@ -57,5 +70,6 @@ Detect() {
 ############ Start Execution ############
 mergecap *.pcap* -w results.pcap
 TcpConvCount
+DnsSub
 FlowSep
 Detect
