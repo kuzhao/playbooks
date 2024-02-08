@@ -2,7 +2,7 @@ name: Build AzureLab
 
 on:
   push:
-    branches: [ "arm-dev" ]
+    branches: [ "azurelab" ]
     
 jobs:
   build:
