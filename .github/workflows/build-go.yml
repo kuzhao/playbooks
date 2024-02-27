@@ -31,7 +31,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        source_info: ['ondrajz/go-callvis,"go build",go-callvis,.','mosajjal/dnsmonster,"go build",dnsmonster,cmd/dnsmonster']
+        source_info: ['ondrajz/go-callvis,"go build",go-callvis,.','mosajjal/dnsmonster,"go build",dnsmonster,cmd/dnsmonster','cyberelf/netcat-keepalive,"make linux",nckl-linux,.']
     runs-on: ubuntu-latest
     steps:
     - uses: jungwinter/split@master
@@ -42,7 +42,7 @@ jobs:
         maxsplit: -1
     - uses: ConorMacBride/install-package@v1.1.0
       with:
-        apt: libpcap0.8-dev
+        apt: libpcap0.8-dev libssl-dev libldns-dev libck-dev libnghttp2-dev
     - uses: sudosubin/git-clone-action@v1.0.1
       with:
         repository: ${{ steps.split.outputs._0 }}
@@ -55,11 +55,12 @@ jobs:
       run: |
         cd ${{ steps.split.outputs._0 }}/${{ steps.split.outputs._3 }}
         bash -c ${{ steps.split.outputs._1 }}
+        mv ${{ steps.split.outputs._2 }} ${{ steps.split.outputs._2 }}-linux-amd64
     - name: Upload assets
       uses: xresloader/upload-to-github-release@v1.3.12
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         release_id: ${{ needs.release-setup.outputs.releaseId }}
-        file: ${{ steps.split.outputs._0 }}/${{ steps.split.outputs._3 }}/${{ steps.split.outputs._2 }}
+        file: ${{ steps.split.outputs._0 }}/${{ steps.split.outputs._3 }}/${{ steps.split.outputs._2 }}-linux-amd64
         draft: false
