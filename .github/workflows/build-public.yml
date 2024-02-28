@@ -31,7 +31,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        source_info: ['ondrajz/go-callvis,"go build",go-callvis,.','mosajjal/dnsmonster,"go build",dnsmonster,cmd/dnsmonster','cyberelf/netcat-keepalive,"make linux",nckl-linux,.']
+        source_info: ['ondrajz/go-callvis,"go build",go-callvis,.','mosajjal/dnsmonster,"go build",dnsmonster,cmd/dnsmonster','cyberelf/netcat-keepalive,"make linux",nckl-linux,.','tempesta-tech/tls-perf,"make",tls-perf,.']
     runs-on: ubuntu-latest
     steps:
     - uses: jungwinter/split@master
