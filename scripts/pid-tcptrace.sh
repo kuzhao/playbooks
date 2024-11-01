@@ -36,6 +36,7 @@ done
 
 # Start capture
 tcpdump -w /tmp/trace.pcap -W 1 -G $DURATION &
+PID_TCPDUMP=$!
 # Start bpftrace for proc open port
 wget -q https://github.com/iovisor/bpftrace/releases/download/v0.18.0/bpftrace -O bpftrace && chmod 755 bpftrace 
 wget -q https://raw.githubusercontent.com/iovisor/bpftrace/master/tools/tcpconnect.bt -O tcpconnect.bt
@@ -44,5 +45,6 @@ bpftrace tcpconnect.bt > /tmp/tcp_sessions.txt &
 # Wait for DURATION before wrapping up
 sleep $DURATION
 kill $!
+kill $PID_TCPDUMP
 
 getTraffic
