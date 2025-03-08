@@ -21,8 +21,17 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd scripts
-          zip -r scripts.zip k8s network      
-      # Upload the package file as release    
+          zip -r scripts.zip k8s network 
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          commit: master
+          draft: false
+          prerelease: false
+          name: 'TraceKit'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Upload the package file to the release
       - name: Upload assets
         uses: xresloader/upload-to-github-release@v1.3.12
         env:
