@@ -26,6 +26,7 @@ jobs:
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       - name: Create release
+        id: create_release
         uses: ncipollo/release-action@v1
         with:
           commit: master
@@ -41,6 +42,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release_id: 'TraceKit'
+          release_id: ${{ steps.create_release.outputs.id }}
           file: scripts/scripts.zip
           draft: false
