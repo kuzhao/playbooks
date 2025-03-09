@@ -31,6 +31,7 @@ jobs:
         with:
           commit: master
           tag: "tracekit-${{ steps.date.outputs.date }}"
+          allowUpdates: true
           draft: false
           prerelease: false
           name: 'TraceKit'
