@@ -22,10 +22,14 @@ jobs:
         run: |
           cd scripts
           zip -r scripts.zip k8s network 
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
           commit: master
+          tag: "tracekit-${{ steps.date.outputs.date }}"
           draft: false
           prerelease: false
           name: 'TraceKit'
