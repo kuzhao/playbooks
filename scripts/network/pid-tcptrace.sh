@@ -35,7 +35,7 @@ do
 done
 
 # Start capture
-tcpdump -w /tmp/trace.pcap -W 1 -G $DURATION &
+tcpdump -w /tmp/trace.pcap -s 72 -W 1 -G $DURATION &
 PID_TCPDUMP=$!
 # Start bpftrace for proc open port
 wget -q https://github.com/iovisor/bpftrace/releases/download/v0.18.0/bpftrace -O bpftrace && chmod 755 bpftrace 

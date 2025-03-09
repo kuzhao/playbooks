@@ -54,7 +54,7 @@ spec:
         - -c
         - |
           apt-get update && apt-get install -y tcpdump;
-          tcpdump -C 100 -W 5 -i any host 10.197.226.12 -w /mnt/tcpdump/$(hostname).pcap
+          tcpdump -C 100 -W 5 -s 72 -i any host 10.197.226.12 -w /mnt/tcpdump/$(hostname).pcap
         volumeMounts:
         - name: volume
           mountPath: /mnt/tcpdump

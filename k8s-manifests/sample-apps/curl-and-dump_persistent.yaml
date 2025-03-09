@@ -77,7 +77,7 @@ spec:
         - -c
         - |
           apt-get update && apt-get install -y tcpdump;
-          tcpdump -C 1000 -W 5 -w /data/$(cat /mnt/hostname).pcap host <<<targetIP>>> and port 443
+          tcpdump -C 1000 -W 5 -s 72 -w /data/$(cat /mnt/hostname).pcap host <<<targetIP>>> and port 443
         volumeMounts:              
         - name: data
           mountPath: /data
