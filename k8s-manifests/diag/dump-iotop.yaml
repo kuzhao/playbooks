@@ -37,7 +37,7 @@ spec:
         - -c
         - |
           apt-get update && apt-get install -y iotop;chroot /host iotop -Pbot -d 10 > /data/iotop-$(hostname).log
-        image: ubuntu
+        image: mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim
         name: procio
         volumeMounts:
         - name: host-root

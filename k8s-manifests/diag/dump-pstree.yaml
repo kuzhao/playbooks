@@ -27,7 +27,7 @@ spec:
         - |
           apt-get update && apt-get install -y psmisc;
           while true; do pstree -pTs 1;sleep 10; done
-        image: ubuntu
+        image: mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim
         name: pstree
         volumeMounts:
         - name: host-root

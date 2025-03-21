@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: ubuntu
-    image: ubuntu:latest
+    image: mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim
     command: 
     - /bin/bash
     args:

@@ -44,7 +44,7 @@ spec:
           PID=$(ps -ef | grep -v grep | grep $(chroot /host crictl inspectp $i | jq '.info.pid')| tr -s ' ' |cut -d ' ' -f3)
           echo MainShimPID:$PID;pstree $PID;done;echo
           done > /data/pthreads-$(hostname).log
-        image: ubuntu
+        image: mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim
         name: dump-pid
         volumeMounts:
         - name: host-root

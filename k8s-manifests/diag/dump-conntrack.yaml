@@ -20,7 +20,7 @@ spec:
           type: ''
       containers:
       - name: conntrack
-        image: 'ubuntu:latest'
+        image: 'mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim'
         command:
         - chroot
         - /host

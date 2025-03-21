@@ -20,9 +20,9 @@ spec:
       - command:
         - bash
         - -c
-        - |          
+        - |
           while true;do date;
           ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 2 -nr | head -5;
           echo; sleep 10; done
-        image: ubuntu
+        image: mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim
         name: utility

@@ -48,7 +48,7 @@ spec:
                 - node-dump
       containers:
       - name: pktdump
-        image: 'ubuntu:latest'
+        image: 'mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim'
         command:
         - bash
         - -c

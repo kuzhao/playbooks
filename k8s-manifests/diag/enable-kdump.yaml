@@ -22,7 +22,7 @@ spec:
         - name: DEBIAN_FRONTEND
           value: "noninteractive"
         name: kdump
-        image: 'ubuntu:latest'
+        image: 'mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim'
         command:
         - bash
         - -c
