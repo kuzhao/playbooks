@@ -21,7 +21,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd scripts
-          zip -r scripts.zip k8s network 
+          zip -r scripts.zip k8s system
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
