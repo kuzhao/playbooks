@@ -1,0 +1,23 @@
+name: Tracekit docker image
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: "My Azure Registry"
+    env:
+      REGISTRY: ${{ secrets.DOCKER_USERNAME }}.azurecr.io
+    steps:    
+    - name: Get current date
+      id: date
+      run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . --file .github/docker/Tracekit --tag $REGISTRY/collector:${{ steps.date.outputs.date }} && docker tag $REGISTRY/collector:${{ steps.date.outputs.date }} $REGISTRY/collector:latest
+    - name: Log in to DockerHub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin $REGISTRY
+    - name: Push Docker image to private repository
+      run: docker push $REGISTRY/collector:${{ steps.date.outputs.date }} && docker push $REGISTRY/collector:latest
+
