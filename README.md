@@ -1,2 +1,3 @@
-This is the dev branch regarding Azure Resource Management templates development.  
-[__Used by repo owner only__]
+Dev branch for azure-lab.  
+
+It deploys sample Azure environment through ARM templates.
