@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: msdiag-azurefile
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: azurefile-csi-premium
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -13,16 +25,22 @@ spec:
       labels:
         component: ds-check-mem
     spec:
-      hostNetwork: true
-      hostPID: true
-      hostIPC: true
+      volumes:
+      - name: volume
+        persistentVolumeClaim:
+          claimName: msdiag-azurefile
       containers:
       - command:
         - bash
         - -c
         - |
-          while true;do date;
-          ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 2 -nr | head -5;
-          echo; sleep 10; done
+          apt-get update && apt-get install -y procps;
+          while true;do date >> /mnt/azfile/ps-$(hostname).log;ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head >> /mnt/azfile/ps-$(hostname).log;echo;sleep 10;done
         image: mcr.microsoft.com/mirror/docker/library/debian:bullseye-slim
         name: utility
+        volumeMounts:
+        - name: volume
+          mountPath: /mnt/azfile      
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
