@@ -30,5 +30,5 @@ FROM nginx
 # Extract the dynamic module from the builder image
 ENV MOD_VERSION 0.1.1
 COPY --from=builder nginx-acme-${MOD_VERSION}/target/release/libnginx_acme.so /usr/lib/nginx/modules/objs/ngx_http_acme_module.so
-# Remember load_module in config
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Remember to load_module in config
+RUN sed -i '1i load_module /usr/lib/nginx/modules/objs/ngx_http_acme_module.so;' /etc/nginx/nginx.conf
