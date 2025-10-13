@@ -31,4 +31,5 @@ FROM nginx
 ENV MOD_VERSION 0.1.1
 COPY --from=builder nginx-acme-${MOD_VERSION}/target/release/libnginx_acme.so /usr/lib/nginx/modules/objs/ngx_http_acme_module.so
 # Remember to load_module in config
-RUN sed -i '1i load_module /usr/lib/nginx/modules/objs/ngx_http_acme_module.so;' /etc/nginx/nginx.conf
+RUN sed -i '1i load_module /usr/lib/nginx/modules/objs/ngx_http_acme_module.so;' /etc/nginx/nginx.conf && \
+  ln -s /etc/nginx/extraconf/config /etc/nginx/conf.d/extra.conf
