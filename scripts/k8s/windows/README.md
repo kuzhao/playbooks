@@ -1,0 +1,1 @@
+These sample debug scripts for K8s Windows are scraped from a standard AKS Windows node at C:\k\debug.
