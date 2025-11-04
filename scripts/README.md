@@ -1,6 +1,6 @@
 ### Useful Scripts
-This "scripts" folder contains many shell scripts that come in handy for specific system purposes. See the specification for each of them in the table below.  
-It also contains several sub folders with further README in each.  
+This "scripts" folder contains many shell scripts that come in handy for specific system purposes. See the specification for each script in the table below.  
+Each subfolder has its own README, which contains a similar script specification.  
 |Script|Synopsis|Usage|
 |---|---|---|
 |klog_showfunc.sh|Mark Go package and function names for each line of given log file produced by klog|bash klog_showfunc.sh -l LOGFILE_PATH -b CODEBASE_PATH|
