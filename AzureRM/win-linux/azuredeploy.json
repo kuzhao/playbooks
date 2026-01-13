@@ -40,17 +40,17 @@
     "publicIPAddressType": "Dynamic",
     "VMProfiles": [
       {
-        "vmSize": "Standard_B1s",
+        "vmSize": "Standard_D4ads_v5",
         "publisher": "Canonical",
-        "offer": "UbuntuServer",
-        "sku": "18.04-LTS",
+        "offer": "ubuntu-22_04-lts",
+        "sku": "server",
         "version": "latest"
       },
       {
-        "vmSize": "Standard_B2s",
-        "publisher": "MicrosoftWindowsServer",
-        "offer": "WindowsServer",
-        "sku": "2019-Datacenter-smalldisk",
+        "vmSize": "Standard_D4ads_v5",
+        "publisher": "MicrosoftWindowsDesktop",
+        "offer": "Windows-10",
+        "sku": "win10-22h2-pro-g2",
         "version": "latest"
       }
     ],
@@ -69,20 +69,7 @@
       "autoShutdownNotificationLocale": "en"
     }
   },
-  "resources": [
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2018-11-01",
-      "name": "[concat(variables('publicIPAddressName'), copyIndex())]",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "pip-copy",
-        "count": 2
-      },
-      "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
-      }
-    },
+  "resources": [    
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2018-11-01",
@@ -110,7 +97,6 @@
       "name": "[concat(variables('nicName'), copyIndex())]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/',concat(variables('publicIpAddressName'), copyIndex()))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('vNet').name)]"
       ],
       "copy": {
@@ -125,9 +111,6 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet').name, variables('vNet').subnetName)]"
-              },
-              "publicIpAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIpAddresses', concat(variables('publicIpAddressName'), copyIndex()))]"
               }
             }
           }
@@ -136,7 +119,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2024-11-01",
       "name": "[concat(variables('vmName'), copyIndex())]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -175,7 +158,9 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicName'), copyIndex()))]"
             }
           ]
-        }
+        },
+        "priority": "Spot",
+        "evictionPolicy": "Deallocate"
       }
     },
     {
