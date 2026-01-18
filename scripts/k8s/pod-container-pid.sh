@@ -14,4 +14,4 @@ function fail {
 	exit 1
 }
 
-crictl ps -o json | jq -r '.containers[] | [.id, .labels."io.kubernetes.pod.name", .metadata.name] | @tsv' | grep $1 | while read -r container_id pod_name container_name; do pid=$(crictl inspect "$container_id" | jq -r '.info.pid'); echo "Container: $container_name, Pod: $pod_name, PID: $pid"; done
+crictl ps -o json | jq -r '.containers[] | [.id, .labels."io.kubernetes.pod.name", .metadata.name] | @tsv' | while read -r container_id pod_name container_name; do pid=$(crictl inspect "$container_id" | jq -r '.info.pid'); echo "Container: $container_name, Pod: $pod_name, PID: $pid"; done
