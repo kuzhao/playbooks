@@ -690,6 +690,34 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: outboundcaller
+  labels:
+    app: outboundcaller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: outboundcaller
+  template:
+    metadata:
+      labels:
+        app: outboundcaller
+    spec:
+      containers:
+        - name: outboundcaller
+          image: reg84572.azurecr.io/outboundcaller:v0.1
+          args: ['bing.com']
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+      tolerations:
+        - key: kubernetes.azure.com/scalesetpriority
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: apicaller
   labels:
     app: apicaller
