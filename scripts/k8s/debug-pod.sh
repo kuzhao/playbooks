@@ -52,7 +52,7 @@ kubectl delete pod -l app=pod-debugger
 # For each command, create and apply a pod YAML
 INDEX=1
 for cmd in "${commands[@]}"; do
-    POD_NAME="poddebugger-$INDEX"
+    POD_NAME="$POD-debugger-$INDEX"
     cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Pod

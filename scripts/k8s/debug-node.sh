@@ -32,22 +32,25 @@ kubectl get pod | grep node-debugger | grep Running \
   && echo 'Privileged pod validation passed' || fail 'Check the permission to create privilege pods'
 kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep node-debugger | xargs kubectl delete pod
 
-# File containing commands (one per line)
-COMMAND_FILE="command.txt"
-if [[ ! -f "$COMMAND_FILE" ]]; then
-  echo "Command file '$COMMAND_FILE' not found."
-  exit 1
-fi
 
+commands=(
+    "iotop -btoP -d 5"
+    "while true;do conntrack -S;sleep 5;done"
+)
+# Clear existing debuggers
+kubectl delete pod -l app=node-debugger
+# Apply node debugging
 # For each command, create and apply a pod YAML
 INDEX=1
-while IFS= read -r CMD; do
-  POD_NAME="cmd-$INDEX"
+for cmd in "${commands[@]}"; do
+  POD_NAME="nodedebugger-$INDEX"
   cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
   name: $POD_NAME
+  labels:
+    app: node-debugger
 spec:
   volumes:
   - name: host-root
@@ -56,7 +59,7 @@ spec:
       type: ''
   containers:
   - name: debugger
-    command: ["chroot", "/host", "bash", "-c", "$CMD"]
+    command: ["chroot", "/host", "bash", "-c", "$cmd"]
     image: $IMG
     securityContext:
       privileged: true
@@ -68,6 +71,6 @@ spec:
   hostPID: true
   nodeName: $1
 EOF
-  echo "Applied pod $POD_NAME for command: $CMD"
+  echo "Applied pod $POD_NAME for command: $cmd"
   INDEX=$((INDEX+1))
-done < "$COMMAND_FILE"
+done

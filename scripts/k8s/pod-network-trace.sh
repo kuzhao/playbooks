@@ -1,8 +1,13 @@
 #!/bin/bash
 
-#######IN_PROGRESS########
-# - Duration of tcpdump?
-# - Upload to SAS after all collection finishes
+################
+#To be run on k8s nodes
+#Dependency:
+#  tcpdump
+#Code logic:
+# Obtain target pod's veth intf and network namespace
+# Do tcpdump on the veth and other network diagnostics in its netns
+################
 
 POD_VETH=$(ip route | grep $1 | awk '{print $3}')
 POD_NETNS=$(chroot /host ip link show $POD_VETH | grep -oP 'cni-[\w-]+')

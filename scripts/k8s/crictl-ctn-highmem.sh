@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ################
+#To be run on k8s nodes
 #Dependency:
 #  crictl,pstree
 #  containerd service up and running

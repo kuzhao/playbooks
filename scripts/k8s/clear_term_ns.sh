@@ -51,7 +51,7 @@ for r in "${RES_TYPES[@]}"; do
     while read -r name; do
       [[ -z "$name" ]] && continue
       echo "Patching $r/$name in $NS, removing its finalizer"
-      kc patch ns "$NS" -p '{"metadata":{"finalizers":[]}}' --type=merge      
+      kc patch $r $name -n "$NS" -p '{"metadata":{"finalizers":[]}}' --type=merge      
     done <<<"$ITEMS_WITH_FIN"
   fi
 done

@@ -16,7 +16,7 @@ getTraffic() {
 		local SPORT=$(echo $TMPLINE | cut -d ' ' -f 5)
 		local DPORT=$(echo $TMPLINE | cut -d ' ' -f 7)
 		tcpdump -r /tmp/trace.pcap -w /tmp/session_port_pair_$SPORT-$DPORT.pcap tcp and port $SPORT and port $DPORT
-	done <<< $(cat /tmp/tcp_sessions.txt | grep $TGTPID)
+	done <<< $(cat /tmp/ebpf_tcp_sessions | grep $TGTPID)
 }
 
 # Init var
@@ -35,12 +35,12 @@ do
 done
 
 # Start capture
-tcpdump -w /tmp/trace.pcap -s 72 -W 1 -G $DURATION &
+tcpdump -w /tmp/trace.pcap -s 72 -G $DURATION tcp &
 PID_TCPDUMP=$!
 # Start bpftrace for proc open port
 wget -q https://github.com/iovisor/bpftrace/releases/download/v0.18.0/bpftrace -O bpftrace && chmod 755 bpftrace 
 wget -q https://raw.githubusercontent.com/iovisor/bpftrace/master/tools/tcpconnect.bt -O tcpconnect.bt
-bpftrace tcpconnect.bt > /tmp/tcp_sessions.txt &
+bpftrace tcpconnect.bt > /tmp/ebpf_tcp_sessions &
 
 # Wait for DURATION before wrapping up
 sleep $DURATION

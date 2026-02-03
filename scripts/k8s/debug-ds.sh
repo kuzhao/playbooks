@@ -33,30 +33,32 @@ if [ -z "$SELECTOR" ]; then
   SELECTOR="{}"
 fi
 
-# File containing commands (one per line)
-COMMAND_FILE="command.txt"
-if [[ ! -f "$COMMAND_FILE" ]]; then
-  echo "Command file '$COMMAND_FILE' not found."
-  exit 1
-fi
 
+commands=(
+    "iotop -btoP -d 5"
+)
+# Clear existing debuggers
+kubectl delete ds -l app=debugger-ds
+# Apply debug daemonSets
 # For each command, create and apply a pod YAML
 INDEX=1
-while IFS= read -r CMD; do
-  POD_NAME="cmd-$INDEX"
+for cmd in "${commands[@]}"; do
+  DS_NAME="debugger-ds-$INDEX"
   cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: $POD_NAME
+  name: $DS_NAME
+  labels:
+    app: debugger-ds
 spec:
   selector:
     matchLabels:
-      app: $POD_NAME
+      app: $DS_NAME
   template:
     metadata:
       labels:
-        app: $POD_NAME
+        app: $DS_NAME
     spec:
       nodeSelector:
         $SELECTOR
@@ -67,7 +69,7 @@ spec:
           type: ''
       containers:
       - name: debugger
-        command: ["chroot", "/host", "bash", "-c", "$CMD"]
+        command: ["chroot", "/host", "bash", "-c", "$cmd"]
         image: $IMG
         securityContext:
           privileged: true
@@ -77,7 +79,11 @@ spec:
       hostIPC: true
       hostNetwork: true
       hostPID: true
+      tolerations:
+      - key: kubernetes.azure.com/scalesetpriority
+        operator: Exists
+        effect: NoSchedule
 EOF
-  echo "Applied ds $POD_NAME for command: $CMD"
+  echo "Applied ds $POD_NAME for command: $cmd"
   INDEX=$((INDEX+1))
-done < "$COMMAND_FILE"
+done 
