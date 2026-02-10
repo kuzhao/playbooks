@@ -12,7 +12,9 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    environment: "My Azure Registry"
+    env:
+      REGISTRY: ${{ secrets.DOCKER_USERNAME }}.azurecr.io
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -52,4 +54,4 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin $REGISTRY
       - name: Push Docker image to private repository
         run: docker push $REGISTRY/collector:${{ steps.date.outputs.date }} && docker push $REGISTRY/collector:latest
-        
+
