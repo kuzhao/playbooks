@@ -23,7 +23,7 @@ RUN apt-get update && \
 WORKDIR /opt
 
 # Download Tracekit zip
-RUN wget --no-check-certificate https://github.com/kuzhao/playbooks/releases/download/tracekit-2025-03-10/scripts.zip &&\
+RUN wget --no-check-certificate https://github.com/kuzhao/playbooks/releases/download/tracekit-$(date +'%Y-%m-%d')/scripts.zip &&\
     unzip scripts.zip
 
 # Set the default command
