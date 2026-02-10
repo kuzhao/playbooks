@@ -1,5 +1,5 @@
 # Use the official Ubuntu image as the base image
-FROM mcr.microsoft.com/mirror/docker/library/debian:buster-slim
+FROM ubuntu
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
