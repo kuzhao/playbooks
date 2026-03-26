@@ -26,19 +26,21 @@ fi
 
 # Verify privileged pod can be deployed
 kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep node-debugger | xargs kubectl delete pod
+echo 'Use kubectl debug to test if you can create a privileged debug pod'
 kubectl debug node/$1 --profile sysadmin --image $IMG -- sleep 120 || exit 1
 sleep 10
 kubectl get pod | grep node-debugger | grep Running \
-  && echo 'Privileged pod validation passed' || fail 'Check the permission to create privilege pods'
+  && echo 'Privileged pod create test passed' || fail 'Check the permission to create privilege pods'
 kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep node-debugger | xargs kubectl delete pod
-
 
 commands=(
     "iotop -btoP -d 5"
-    "while true;do conntrack -S;sleep 5;done"
+    'while true;do conntrack -L|grep -v \"168\\|169\";echo;sleep 5;done'
+    'while true;do crictl ps -o json | jq -r '\''.containers[] | [.id, .labels.\"io.kubernetes.pod.name\", .metadata.name] | @tsv'\'' | while read -r container_id pod_name container_name; do pid=$(crictl inspect \"$container_id\" | jq -r '\''.info.pid'\''); echo \"Container: $container_name, Pod: $pod_name, PID: $pid\";pstree -pTs $pid; done;echo;sleep 15;done'
 )
 # Clear existing debuggers
-kubectl delete pod -l app=node-debugger
+echo 'Clean up residue debuggers'
+kubectl delete pod -l app=debug-node
 # Apply node debugging
 # For each command, create and apply a pod YAML
 INDEX=1
@@ -50,7 +52,7 @@ kind: Pod
 metadata:
   name: $POD_NAME
   labels:
-    app: node-debugger
+    app: debug-node
 spec:
   volumes:
   - name: host-root

@@ -15,10 +15,11 @@ fi
 
 # Verify privileged pod can be deployed
 kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep node-debugger | xargs kubectl delete pod
+echo 'Use kubectl debug to test if you can create a privileged debug pod'
 kubectl debug node/$(kubectl get node --no-headers -o custom-columns=':metadata.name' | head -n 1) --profile sysadmin --image $IMG -- sleep 120 || exit 1
 sleep 10
 kubectl get pod | grep node-debugger | grep Running \
-  && echo 'Privileged pod validation passed' || fail 'Check the permission to create privilege pods'
+  && echo 'Privileged pod create test passed' || fail 'Check the permission to create privilege pods'
 kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep node-debugger | xargs kubectl delete pod
 
 # Get nodeSelector param from argument
@@ -38,6 +39,7 @@ commands=(
     "iotop -btoP -d 5"
 )
 # Clear existing debuggers
+echo 'Clean up residue debuggers'
 kubectl delete ds -l app=debugger-ds
 # Apply debug daemonSets
 # For each command, create and apply a pod YAML
