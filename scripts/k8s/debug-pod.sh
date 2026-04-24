@@ -49,7 +49,7 @@ commands=(
 )
 # Clear existing debuggers
 echo 'Clean up residue debuggers'
-kubectl delete pod -l app=pod-debugger
+kubectl delete pod -l app=debugger-pod
 # Apply pod debug commands
 # For each command, create and apply a pod YAML
 INDEX=1
@@ -62,7 +62,7 @@ metadata:
   name: $POD_NAME
   labels:
     debug-target: $POD
-    app: pod-debugger
+    app: debugger-pod
 spec:
   volumes:
   - name: host-root
